@@ -1,5 +1,8 @@
 package lab1;
 
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -8,13 +11,18 @@ public class MasterProcessManager implements Runnable{
 	
 	private String host; //host of current master server
 	private int port; //port of current master server
-	private HashMap<String,Integer> slave;
-	private ArrayList<HashMap<String, Integer>> slaveList;
+	private ArrayList<SlaveBean> slaveList;
 
 	/*
 	 * launch process
 	 */
 	public void launchProcess(){
+		//using test class for testing
+		TestProcess testProcess = new TestProcess();
+		testProcess.run();
+		testProcess.suspend();
+		
+		migrateProcess("127.0.0.0", 9998, testProcess);
 		
 	}
 	
@@ -23,7 +31,7 @@ public class MasterProcessManager implements Runnable{
 	 * add slave info to slaveList
 	 */
 	public void addSlave(String slaveHost, int slavePort){
-		slave.put(slaveHost,slavePort);
+		SlaveBean slave = new SlaveBean(slaveHost, slavePort);
 		slaveList.add(slave);
 	}
 	
@@ -31,27 +39,53 @@ public class MasterProcessManager implements Runnable{
 	 * disconnect with slave and collect all processes
 	 */
 	public void removeSlave(String slaveHost, int slavePort){
-		
+		slaveList.remove(slaveHost);
+		//collect remaining process
 	}
 	
 	/**
-	 * build connection to slave
+	 * build connection to slave via socket
 	 */
 	public void connSlave(String slaveHost, int slavePort){
 		
 	}
+	
+	public SlaveBean getSlave(){
+		String host = "127.0.0.1";
+		int port = 9998;
+		return new SlaveBean(host,port);
+	}
 	 
 	/*
-	 * receive process sent from slaves
+	 * receive process sent from slaves via socket
 	 */
-	public void receiveProcess(){
+	public void receiveProcess() throws IOException, ClassNotFoundException{
+		ServerSocket listener = null;
+		Socket socket;
+		ObjectInputStream in;
 		
+		try {
+			listener = new ServerSocket(getPort());
+			while(true){
+				socket = listener.accept();
+				in = new ObjectInputStream(new ObjectInputStream(socket.getInputStream()));
+				MigratableProcess testProcess = (MigratableProcess) in.readObject();
+				//console log
+				System.out.println("MasterProcess receive" + testProcess.toString());
+				in.close();
+				socket.close();
+				
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			listener.close();
+		} 
 	}
 	
 	/*
 	 * migrate process to slave
 	 */
-	public void migrateProcess(String slaveHost, int slavePort){
+	public void migrateProcess(String slaveHost, int slavePort, MigratableProcess process){
 		
 	}
 	
