@@ -17,6 +17,7 @@ public class GrepProcess implements MigratableProcess
 	private String query;
 
 	private volatile boolean suspending;
+	private volatile boolean terminated;
 
 	public GrepProcess(String args[]) throws Exception
 	{
@@ -62,34 +63,36 @@ public class GrepProcess implements MigratableProcess
 		suspending = false;
 	}
 
+
+	@Override
+	public TransactionalFileInputStream getInput() {
+		return  inFile;
+	}
+
+	@Override
+	public TransactionalFileOutputStream getOutput() {
+		return  outFile;
+	}
+	
 	public void suspend()
 	{
 		suspending = true;
 		while (suspending);
 	}
-
-	@Override
-	public TransactionalFileInputStream getInput() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public TransactionalFileOutputStream getOutput() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public String toString(){
+		return this.getClass().getName();
 	}
 
 	@Override
 	public void resume() {
-		// TODO Auto-generated method stub
-		
+		suspending = false;
+		this.notify();
 	}
 
 	@Override
 	public void terminate() {
-		// TODO Auto-generated method stub
-		
+		terminated = true;
 	}
 
 }
