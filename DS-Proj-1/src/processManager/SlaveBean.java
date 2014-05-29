@@ -10,7 +10,20 @@ public class SlaveBean {
 	public SlaveBean(String host, int port){
 		this.host = host;
 		this.port = port;
-		
+		setCurCount(0);
+	}
+	
+	
+	/*
+	 * return true is add successfully
+	 */
+	public boolean addProcess(){
+		if(isAddable()) {
+			curCount++;
+			return true;
+		}else {
+			return false;
+		}
 	}
 	
 	public int getCurCount() {
@@ -34,6 +47,14 @@ public class SlaveBean {
 	}
 	public void setCurCount(int curCount) {
 		this.curCount = curCount;
+	}
+	
+	private boolean isAddable(){
+		if(curCount > maxCapacity) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 }
