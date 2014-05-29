@@ -9,13 +9,13 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
 	private static final long serialVersionUID = -8577982678271040984L;
 	private String fileName;
 	private long fileIndex;
-	private transient RandomAccessFile fileStream;
+	private transient RandomAccessFile rf;
 
 	public TransactionalFileInputStream(String fileName) {
 		this.fileName = fileName;
 		this.fileIndex = 0;
 		try {
-			fileStream = new RandomAccessFile(fileName, "r");
+			rf = new RandomAccessFile(fileName, "r");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -25,7 +25,7 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
 	
 	@Override
 	public int read() throws IOException {
-		int res = fileStream.read();
+		int res = rf.read();
 		if (res != -1) fileIndex++;
 		return res;
 	}
