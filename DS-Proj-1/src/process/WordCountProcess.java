@@ -1,12 +1,12 @@
 package process;
 
+import io.TransactionalFileInputStream;
+import io.TransactionalFileOutputStream;
+
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintStream;
-
-import lab1.TransactionalFileInputStream;
-import lab1.TransactionalFileOutputStream;
 
 public class WordCountProcess implements MigratableProcess{
 	/**

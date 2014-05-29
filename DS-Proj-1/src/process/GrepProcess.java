@@ -1,4 +1,7 @@
 package process;
+import io.TransactionalFileInputStream;
+import io.TransactionalFileOutputStream;
+
 import java.io.PrintStream;
 import java.io.EOFException;
 import java.io.DataInputStream;
@@ -7,9 +10,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.Thread;
 import java.lang.InterruptedException;
-
-import lab1.TransactionalFileInputStream;
-import lab1.TransactionalFileOutputStream;
 
 public class GrepProcess implements MigratableProcess
 {

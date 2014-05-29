@@ -1,4 +1,4 @@
-package lab1;
+package processManager;
 
 public class SlaveBean {
 	private final int maxCapacity = 10;

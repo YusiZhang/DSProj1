@@ -1,6 +1,7 @@
-package lab1;
+package process;
 
-import process.MigratableProcess;
+import io.TransactionalFileInputStream;
+import io.TransactionalFileOutputStream;
 
 public class TestProcess implements MigratableProcess{
 

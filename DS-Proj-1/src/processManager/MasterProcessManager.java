@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import process.MigratableProcess;
-import lab1.SlaveBean;
 
 
 public class MasterProcessManager implements Runnable{

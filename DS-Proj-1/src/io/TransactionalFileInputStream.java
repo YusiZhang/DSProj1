@@ -1,4 +1,4 @@
-package lab1;
+package io;
 
 import java.io.*;
 

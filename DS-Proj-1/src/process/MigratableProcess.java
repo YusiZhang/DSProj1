@@ -2,10 +2,10 @@
  * 
  */
 package process;
-import java.io.Serializable;
+import io.TransactionalFileInputStream;
+import io.TransactionalFileOutputStream;
 
-import lab1.TransactionalFileInputStream;
-import lab1.TransactionalFileOutputStream;
+import java.io.Serializable;
 
 /**
  * @author yusizhang
