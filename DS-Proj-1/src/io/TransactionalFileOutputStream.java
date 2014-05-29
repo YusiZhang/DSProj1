@@ -11,14 +11,14 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
 	
 	private String fileName;
 	private long fileIndex;
-	private transient RandomAccessFile fileStream;
+	private transient RandomAccessFile rf;
 	
 	public TransactionalFileOutputStream(String fileName, boolean b) {
 		this.fileName = fileName;
 		this.fileIndex = 0;
 		
 		try {
-			fileStream = new RandomAccessFile(fileName, "w");
+			rf = new RandomAccessFile(fileName, "w");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -26,7 +26,10 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
 	}
 	@Override
 	public void write(int b) throws IOException {
-		fileStream.write(b);
+		rf = new RandomAccessFile(fileName, "w");
+
+		rf.write(b);
+		rf.close();
 		fileIndex++;
 	}
 
