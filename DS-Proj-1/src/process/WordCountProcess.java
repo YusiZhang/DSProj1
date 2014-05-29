@@ -1,93 +1,94 @@
-package lab1;
-import java.io.PrintStream;
-import java.io.EOFException;
-import java.io.DataInputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.lang.Thread;
-import java.lang.InterruptedException;
+package process;
 
-public class GrepProcess implements MigratableProcess
-{
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.PrintStream;
+
+import lab1.TransactionalFileInputStream;
+import lab1.TransactionalFileOutputStream;
+
+public class WordCountProcess implements MigratableProcess{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6690831713903505496L;
 	private TransactionalFileInputStream  inFile;
 	private TransactionalFileOutputStream outFile;
 	private String query;
-
+	private long count;
 	private volatile boolean suspending;
+	private volatile boolean terminated;
 
-	public GrepProcess(String args[]) throws Exception
-	{
+	public WordCountProcess(String[] args) throws Exception{
 		if (args.length != 3) {
-			System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
+			System.out.println("usage: WordCountProcess <queryString> <inputFile> <outputFile>");
 			throw new Exception("Invalid Arguments");
 		}
 		
 		query = args[0];
 		inFile = new TransactionalFileInputStream(args[1]);
 		outFile = new TransactionalFileOutputStream(args[2], false);
+		
+		
 	}
-
-	public void run()
-	{
+	
+	public void run(){
 		PrintStream out = new PrintStream(outFile);
 		DataInputStream in = new DataInputStream(inFile);
-
-		try {
+		try{
 			while (!suspending) {
 				String line = in.readLine();
-
 				if (line == null) break;
-				
 				if (line.contains(query)) {
-					out.println(line);
+					count++;
 				}
 				
-				// Make grep take longer so that we don't require extremely large files for interesting results
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// ignore it
+				try{
+					Thread.sleep(10000);
+				}catch(InterruptedException e){
+					//do nothing
 				}
 			}
-		} catch (EOFException e) {
+		}catch (EOFException e) {
 			//End of File
 		} catch (IOException e) {
-			System.out.println ("GrepProcess: Error: " + e);
+			System.out.println ("WordCountProcess: Error: " + e);
 		}
-
-
+		
+		
 		suspending = false;
 	}
 
-	public void suspend()
-	{
+	@Override
+	public void suspend() {
 		suspending = true;
-		while (suspending);
+		while (suspending);		
 	}
 
 	@Override
 	public TransactionalFileInputStream getInput() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.inFile;
 	}
 
 	@Override
 	public TransactionalFileOutputStream getOutput() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.outFile;
 	}
 
 	@Override
 	public void resume() {
-		// TODO Auto-generated method stub
-		
+		suspending = false;
+		this.notify();
 	}
 
 	@Override
 	public void terminate() {
-		// TODO Auto-generated method stub
-		
+		terminated  = true;
 	}
+
+	
+
+	
 
 }

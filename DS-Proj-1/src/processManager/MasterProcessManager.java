@@ -1,10 +1,15 @@
-package lab1;
+package processManager;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import process.MigratableProcess;
+import lab1.SlaveBean;
+
 
 public class MasterProcessManager implements Runnable{
 	
@@ -16,13 +21,37 @@ public class MasterProcessManager implements Runnable{
 	/*
 	 * launch process
 	 */
-	public void launchProcess(){
-		//using test class for testing
-		TestProcess testProcess = new TestProcess();
-		testProcess.run();
-		testProcess.suspend();
-		
-		migrateProcess("127.0.0.0", 9998, testProcess);
+	public void launchProcess(String className){
+		Class<?> processClass;
+		try {
+			processClass = Class.forName(className);
+			Constructor[] ctors = processClass.getConstructors();
+			Constructor ctor = null;
+			ctor = ctors[0];
+			String [] args = {"zhang","inFile.txt","outFile.txt"};
+			MigratableProcess process = (MigratableProcess) ctor.newInstance(args);
+
+
+			process.run();
+			process.suspend();
+//			migrateProcess(slaveHost, slavePort, process);
+			
+			
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	

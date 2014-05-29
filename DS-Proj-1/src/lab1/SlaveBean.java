@@ -7,7 +7,7 @@ public class SlaveBean {
 	private int curCount;
 
 	
-	SlaveBean(String host, int port){
+	public SlaveBean(String host, int port){
 		this.host = host;
 		this.port = port;
 		

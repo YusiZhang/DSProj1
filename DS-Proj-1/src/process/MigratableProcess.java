@@ -1,8 +1,11 @@
 /**
  * 
  */
-package lab1;
+package process;
 import java.io.Serializable;
+
+import lab1.TransactionalFileInputStream;
+import lab1.TransactionalFileOutputStream;
 
 /**
  * @author yusizhang
