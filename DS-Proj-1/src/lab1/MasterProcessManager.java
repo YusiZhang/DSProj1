@@ -86,6 +86,19 @@ public class MasterProcessManager implements Runnable{
 	 * migrate process to slave
 	 */
 	public void migrateProcess(String slaveHost, int slavePort, MigratableProcess process){
+		Socket socket;
+		OutputStream os;
+		try {
+			socket = new Socket(slaveHost,slavePort);
+			os = socket.getOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(os); 
+			oos.writeObject(process);
+			oos.close();
+			os.close();
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}  
 		
 	}
 	
