@@ -6,17 +6,21 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import process.MigratableProcess;
 
-public class SlaveProcessManager {
+public class SlaveProcessManager implements Runnable{
 	private String host;
 	private int port;
+	private SlaveBean slaveBean;
+	private ArrayList<MigratableProcess> processList;
 
 	SlaveProcessManager(String host, int port) {
 		this.host = host;
 		this.port = port;
-
+		slaveBean = new SlaveBean(host, port);
+		processList = new ArrayList<MigratableProcess>();
 	}
 
 	/*
@@ -33,10 +37,22 @@ public class SlaveProcessManager {
 				socket = listener.accept();
 				in = new ObjectInputStream(new ObjectInputStream(
 						socket.getInputStream()));
-				MigratableProcess testProcess = (MigratableProcess) in
+				MigratableProcess receivedProcess = (MigratableProcess) in
 						.readObject();
 				// console log
-				System.out.println("Slave receive" + testProcess.toString());
+				System.out.println("Slave receive" + receivedProcess.toString());
+				
+				//add process to arraylist
+				if(slaveBean.addProcess()){//slaveBean's count is added here
+					processList.add(receivedProcess);
+				}else {
+					//exception!!!!!!!
+					throw new Exception("Slave machine is full!");
+				}
+
+					
+
+				
 				in.close();
 				socket.close();
 
@@ -44,6 +60,8 @@ public class SlaveProcessManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 			listener.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -67,20 +85,29 @@ public class SlaveProcessManager {
 
 	}
 
-	public String getHost() {
-		return host;
+	/*
+	 * launch process on slave machine
+	 */
+	public void launchProcess(){
+		for (MigratableProcess process : processList) {
+			//risk of running twice????????????
+			process.run();	
+		}
 	}
+	
+	public String getHost() {return host;}
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+	public void setHost(String host) {this.host = host;}
 
-	public int getPort() {
-		return port;
-	}
+	public int getPort() {return port;}
 
-	public void setPort(int port) {
-		this.port = port;
+	public void setPort(int port) {this.port = port;}
+
+	
+	public void run() {
+
+		//log start
+		System.out.println("Slave process manager starts!");
 	}
 
 }
