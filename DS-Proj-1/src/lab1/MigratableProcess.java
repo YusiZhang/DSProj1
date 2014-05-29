@@ -11,6 +11,14 @@ import java.io.Serializable;
 public interface MigratableProcess extends Runnable,Serializable{
 
 	public void suspend();
-	public String toString();
 	
+	public void resume();
+	
+	public void terminate();
+	
+	public String toString();
+
+	TransactionalFileInputStream getInput();
+
+	TransactionalFileOutputStream getOutput(); 
 }
