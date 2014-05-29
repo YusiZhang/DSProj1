@@ -24,4 +24,5 @@ public interface MigratableProcess extends Runnable,Serializable{
 	TransactionalFileInputStream getInput();
 
 	TransactionalFileOutputStream getOutput(); 
+	
 }
