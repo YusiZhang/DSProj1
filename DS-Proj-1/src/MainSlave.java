@@ -14,11 +14,20 @@ import processManager.SlaveProcessManager;
 /*
  * Main entry 
  */
-public class Main {
+public class MainSlave {
 	
 	
 	public static void main(String[] args) {
-
+		SlaveProcessManager slaveManager = new SlaveProcessManager("127.0.0.1", 15644);
+		
+		
+		try {
+			slaveManager.run();
+			
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }

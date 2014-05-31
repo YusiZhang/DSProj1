@@ -42,16 +42,28 @@ public class SlaveProcessManager implements Runnable {
 				//2. wait for connection
 				System.out.println("Waiting for connection");
 				socket = listener.accept();
-				System.out.println("Connection received from " + listener.getInetAddress().getHostName());
+//				System.out.println("Connection received from " + listener.getInetAddress().getHostName());
 				
 				//3.read object from inputstream
 				in = new ObjectInputStream(socket.getInputStream());
 				String s = (String)in.readObject();
-				System.out.println("Message Received from slave" + s);
+				System.out.println("Message Received from Master" + s);
+
 				
+				Thread t = new Thread();
 				
+				int i = 0;
+				while(i < 10) {
+					i++;
+					t.sleep(1000);
+				}
+				in.close();
+				listener.close();
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
 			//4.close connection
@@ -111,6 +123,15 @@ public class SlaveProcessManager implements Runnable {
 
 		// log start
 		System.out.println("Slave process manager starts!");
+		try {
+			receiveProcess();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
