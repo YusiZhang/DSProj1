@@ -50,6 +50,8 @@ public class WordCountProcess implements MigratableProcess{
 					//do nothing
 				}
 			}
+			
+			out.println(count);
 		}catch (EOFException e) {
 			//End of File
 		} catch (IOException e) {
@@ -77,7 +79,7 @@ public class WordCountProcess implements MigratableProcess{
 	}
 
 	@Override
-	public void resume() {
+	public synchronized void resume() {
 		suspending = false;
 		this.notify();
 	}
@@ -86,9 +88,4 @@ public class WordCountProcess implements MigratableProcess{
 	public void terminate() {
 		terminated  = true;
 	}
-
-	
-
-	
-
 }

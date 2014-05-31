@@ -11,29 +11,31 @@ import java.io.IOException;
 import java.lang.Thread;
 import java.lang.InterruptedException;
 
-public class GrepProcess implements MigratableProcess
+public class ReplaceProcess implements MigratableProcess
 {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6457065956449962288L;
 	private TransactionalFileInputStream  inFile;
 	private TransactionalFileOutputStream outFile;
 	private String query;
+	private String replaceStr;
+
 
 	volatile boolean suspending;
 	volatile boolean terminated;
 
-	public GrepProcess(String args[]) throws Exception
+	public ReplaceProcess(String args[]) throws Exception
 	{
-		if (args.length != 3) {
-			System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
+		if (args.length != 4) {
+			System.out.println("usage: ReplaceProcess <queryString> <replaceString> <inputFile> <outputFile>");
 			throw new Exception("Invalid Arguments");
 		}
 		
 		query = args[0];
-		inFile = new TransactionalFileInputStream(args[1]);
-		outFile = new TransactionalFileOutputStream(args[2], false);
+		replaceStr = args[1];
+		inFile = new TransactionalFileInputStream(args[2]);
+		outFile = new TransactionalFileOutputStream(args[3], false);
 	}
 
 	public void run()
@@ -48,6 +50,7 @@ public class GrepProcess implements MigratableProcess
 				if (line == null) break;
 				
 				if (line.contains(query)) {
+					line.replace(query, replaceStr);
 					out.println(line);
 				}
 				// Make grep take longer so that we don't require extremely large files for interesting results
