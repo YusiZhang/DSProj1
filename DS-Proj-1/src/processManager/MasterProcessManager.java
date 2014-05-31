@@ -27,22 +27,25 @@ public class MasterProcessManager implements Runnable {
 
 	/*
 	 * launch process
+	 * input: className and args
 	 */
-	public void launchProcess(String className) throws SecurityException,
+	public void launchProcess(String className, String [] args) throws SecurityException,
 			NoSuchMethodException {
 		Class<?> processClass;
 		try {
 			processClass = Class.forName(className);
-			Constructor[] ctors = processClass.getConstructors();
-			// processClass.getConstructor(String[].class);
-			Constructor ctor = null;
-			ctor = ctors[0];
-			String[] args = { "zhang", "inFile.txt", "outFile.txt" };
-			MigratableProcess process = (MigratableProcess) ctor
-					.newInstance(args);
-
-			process.run();
-			process.suspend();
+//			Constructor[] ctors = processClass.getConstructors();
+//			processClass.getConstructor(String[].class);
+			MigratableProcess process = (MigratableProcess) processClass.getConstructor(String[].class).newInstance(args);//???????
+			
+//			Constructor ctor = null;
+//			ctor = ctors[0];
+//			String[] args = { "zhang", "inFile.txt", "outFile.txt" };
+//			MigratableProcess process = (MigratableProcess) ctor
+//					.newInstance(args);
+//
+//			process.run();
+//			process.suspend();
 //			migrateProcess(slaveHost, slavePort, process);
 
 		} catch (ClassNotFoundException e) {
@@ -88,7 +91,7 @@ public class MasterProcessManager implements Runnable {
 
 	public SlaveBean getSlave() {
 		String host = "127.0.0.1";
-		int port = 9998;
+		int port = 15641;
 		return new SlaveBean(host, port);
 	}
 
@@ -190,6 +193,15 @@ public class MasterProcessManager implements Runnable {
 
 	@Override
 	public void run() {
+		try {
+			receiveProcess();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

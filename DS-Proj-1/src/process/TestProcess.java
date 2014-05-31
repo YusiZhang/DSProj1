@@ -8,7 +8,7 @@ public class TestProcess implements MigratableProcess{
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		
+		System.out.println("Test Process is running!");
 	}
 
 	@Override
