@@ -7,16 +7,17 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 
 import process.MigratableProcess;
 
-public class SlaveProcessManager implements Runnable{
+public class SlaveProcessManager implements Runnable {
 	private String host;
 	private int port;
 	private SlaveBean slaveBean;
 	private ArrayList<MigratableProcess> processList;
 
-	SlaveProcessManager(String host, int port) {
+	public SlaveProcessManager(String host, int port) {
 		this.host = host;
 		this.port = port;
 		slaveBean = new SlaveBean(host, port);
@@ -27,48 +28,43 @@ public class SlaveProcessManager implements Runnable{
 	 * receive process sent from master via socket
 	 */
 	public void receiveProcess() throws IOException, ClassNotFoundException {
+
 		ServerSocket listener = null;
 		Socket socket;
-		ObjectInputStream in;
-
+		ObjectInputStream in = null;
+		
 		try {
+			//1. creating a server socket
 			listener = new ServerSocket(getPort());
-			while (true) {
+			
+			while(true) {
+				
+				//2. wait for connection
+				System.out.println("Waiting for connection");
 				socket = listener.accept();
-				in = new ObjectInputStream(new ObjectInputStream(
-						socket.getInputStream()));
-				MigratableProcess receivedProcess = (MigratableProcess) in
-						.readObject();
-				// console log
-				System.out.println("Slave receive" + receivedProcess.toString());
+				System.out.println("Connection received from " + listener.getInetAddress().getHostName());
 				
-				//add process to arraylist
-				if(slaveBean.addProcess()){//slaveBean's count is added here
-					processList.add(receivedProcess);
-				}else {
-					//exception!!!!!!!
-					throw new Exception("Slave machine is full!");
-				}
-
-					
-
+				//3.read object from inputstream
+				in = new ObjectInputStream(socket.getInputStream());
+				String s = (String)in.readObject();
+				System.out.println("Message Received from slave" + s);
 				
-				in.close();
-				socket.close();
-
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		}finally {
+			//4.close connection
+			in.close();
 			listener.close();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
 	/*
 	 * migrate process to master
 	 */
-	public void migrateProcess(String masterHost, int masterPort, MigratableProcess process) {
+	public void migrateProcess(String masterHost, int masterPort,
+			MigratableProcess process) {
 		Socket socket;
 		OutputStream os;
 		try {
@@ -88,25 +84,32 @@ public class SlaveProcessManager implements Runnable{
 	/*
 	 * launch process on slave machine
 	 */
-	public void launchProcess(){
+	public void launchProcess() {
 		for (MigratableProcess process : processList) {
-			//risk of running twice????????????
-			process.run();	
+			// risk of running twice????????????
+			process.run();
 		}
 	}
-	
-	public String getHost() {return host;}
 
-	public void setHost(String host) {this.host = host;}
+	public String getHost() {
+		return host;
+	}
 
-	public int getPort() {return port;}
+	public void setHost(String host) {
+		this.host = host;
+	}
 
-	public void setPort(int port) {this.port = port;}
+	public int getPort() {
+		return port;
+	}
 
-	
+	public void setPort(int port) {
+		this.port = port;
+	}
+
 	public void run() {
 
-		//log start
+		// log start
 		System.out.println("Slave process manager starts!");
 	}
 

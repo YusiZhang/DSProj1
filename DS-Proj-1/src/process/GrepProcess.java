@@ -44,11 +44,13 @@ public class GrepProcess implements MigratableProcess
 				
 				if (line.contains(query)) {
 					out.println(line);
+					System.out.println(line);
 				}
 				
 				// Make grep take longer so that we don't require extremely large files for interesting results
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1000);
+					System.out.println("run 1 s");
 				} catch (InterruptedException e) {
 					// ignore it
 				}
@@ -76,6 +78,7 @@ public class GrepProcess implements MigratableProcess
 	
 	public void suspend()
 	{
+		System.out.println("Suspend is called!!");
 		suspending = true;
 		while (suspending);
 	}
@@ -94,5 +97,6 @@ public class GrepProcess implements MigratableProcess
 	public void terminate() {
 		terminated = true;
 	}
+	
 
 }
