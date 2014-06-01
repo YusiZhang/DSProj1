@@ -27,30 +27,36 @@ public class MasterProcessManager implements Runnable {
 	}
 
 	/*
-	 * launch process config
-	 * input: className and args
+	 * launch process config input: className and args
 	 */
-	public void launchProcessConfig(String className, String [] args) throws SecurityException,
-			NoSuchMethodException {
-		Class<?> processClass;
-		TestProcess test = new TestProcess();
-		processList.add(test);
+	public void launchProcessConfig(String className, String[] args)
+			throws SecurityException, NoSuchMethodException {
 
-//		} catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IllegalArgumentException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (InstantiationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IllegalAccessException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (InvocationTargetException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			Class<?> processClass = Class.forName(className);
+			// System.out.print("processClass is " + processClass.toString());
+			MigratableProcess process;
+			process = (MigratableProcess)processClass.getConstructor(String[].class).newInstance((Object)args);
+//			process = (MigratableProcess) processClass.newInstance();
+			System.out.println("MP is " + process.toString());
+			processList.add(process);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // TestProcess test = new TestProcess();
+		catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
@@ -107,11 +113,11 @@ public class MasterProcessManager implements Runnable {
 				in = new ObjectInputStream(socket.getInputStream());
 				String s = (String) in.readObject();
 				System.out.println("Message Received from slave" + s);
-				
-				
-//				MigratableProcess process = (MigratableProcess) in.readObject();
-//				processList.add(process);
-				
+
+				// MigratableProcess process = (MigratableProcess)
+				// in.readObject();
+				// processList.add(process);
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -129,15 +135,17 @@ public class MasterProcessManager implements Runnable {
 			MigratableProcess process) {
 		Socket socket;
 		ObjectOutputStream os;
-		System.out.println("Master mig to slave " + slaveHost + "with port" + slavePort);
+		System.out.println("Master mig to slave " + slaveHost + "with port "
+				+ slavePort);
 		try {
 			socket = new Socket(slaveHost, slavePort);
 			os = new ObjectOutputStream(socket.getOutputStream());
 			os.flush();
 			String s = "Greeting from Master";
-			os.writeObject(s);
+			// os.writeObject(s);
 
-//			os.writeObject(process);
+			System.out.println("Mig " + process.toString());
+			os.writeObject(process);
 			os.close();
 			socket.close();
 
@@ -147,7 +155,6 @@ public class MasterProcessManager implements Runnable {
 			e.printStackTrace();
 		}
 	}
-
 
 	/*
 	 * check all slaves and balance load of slaves
@@ -182,9 +189,8 @@ public class MasterProcessManager implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("MasterManager Running!");
-		processList.get(0).run();
-		migrateProcess("127.0.0.1", 15644, null);
-		
+		// processList.get(0).run();
+		migrateProcess("127.0.0.1", 15644, processList.get(0));
 
 	}
 

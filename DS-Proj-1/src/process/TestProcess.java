@@ -5,6 +5,18 @@ import io.TransactionalFileOutputStream;
 
 public class TestProcess implements MigratableProcess{
 
+	public TestProcess (String[] args){
+		System.out.println("TestProcess Cons String called" + args[0] + " " + args[1]);
+	}
+	
+	public TestProcess (){
+		;
+	}
+	
+	public TestProcess (String s){
+		System.out.println("TestProcess Cons String called" + s);
+	}
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub

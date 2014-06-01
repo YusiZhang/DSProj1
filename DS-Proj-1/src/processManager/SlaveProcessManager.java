@@ -46,8 +46,9 @@ public class SlaveProcessManager implements Runnable {
 				
 				//3.read object from inputstream
 				in = new ObjectInputStream(socket.getInputStream());
-				String s = (String)in.readObject();
-				System.out.println("Message Received from Master" + s);
+//				String s = (String)in.readObject();
+				MigratableProcess process = (MigratableProcess)in.readObject();
+				System.out.println("Message Received from Master" + process.toString());
 
 				
 				Thread t = new Thread();
