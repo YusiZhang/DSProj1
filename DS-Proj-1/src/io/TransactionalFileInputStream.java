@@ -69,7 +69,9 @@ public class TransactionalFileInputStream extends InputStream
 
     //fields
     private long fileIndex; // file offset
-    private String fileName;
+   
+
+	private String fileName;
     
     private int lastContent;
 
@@ -138,4 +140,12 @@ public class TransactionalFileInputStream extends InputStream
     public String getFileName() {
         return fileName;
     }
+    
+    public long getFileIndex() {
+		return fileIndex;
+	}
+
+	public void setFileIndex(long fileIndex) {
+		this.fileIndex = fileIndex;
+	}
 }
