@@ -36,28 +36,35 @@ public class GrepProcess implements MigratableProcess
 		outFile = new TransactionalFileOutputStream(args[2], false);
 	}
 
+	
+	public void runProcess(){
+		//if it has never been started 
+		if (inFile.getFileIndex() == 0){
+			Thread t = new Thread(this);
+			t.start();
+		}
+		else {
+			this.resume();
+		}
+	}
+	
 	public void run()
 	{
 		PrintStream out = new PrintStream(outFile);
 		DataInputStream in = new DataInputStream(inFile);
-
+		
 		try {
 			while (!suspending) {
-//				System.out.println("Grep Starts!!!");
-//				System.out.println(in);
-//				System.out.println(inFile.fileName);
-				
 				String line = in.readLine();
-//				BufferedReader d = new BufferedReader(new InputStreamReader(in));
-//				String line = d.readLine();
-				
-				
-				System.out.println(line);
-				if (line == null) break;
+
+				if (line == null) {
+					terminated = true;
+					break;
+
+				}
 				
 				if (line.contains(query)) {
-					out.println(line);
-
+					System.out.println(line);
 				}
 				// Make grep take longer so that we don't require extremely large files for interesting results
 				try {
@@ -72,7 +79,7 @@ public class GrepProcess implements MigratableProcess
 			System.out.println ("GrepProcess: Error: " + e);
 		}
 
-
+ 
 		suspending = false;
 	}
 
@@ -94,11 +101,12 @@ public class GrepProcess implements MigratableProcess
 		return outFile;
 	}
 
+	
 	@Override
 	public synchronized void resume()
 	{
 		suspending = false;
-		this.notify();
+		this.run();
 	}
 
 	@Override
