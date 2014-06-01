@@ -37,16 +37,16 @@ public class GrepProcess implements MigratableProcess
 	}
 
 	
-	public void runProcess(){
-		//if it has never been started 
-		if (inFile.getFileIndex() == 0){
-			Thread t = new Thread(this);
-			t.start();
-		}
-		else {
-			this.resume();
-		}
-	}
+//	public void runProcess(){
+//		//if it has never been started 
+//		if (inFile.getFileIndex() == 0){
+//			Thread t = new Thread(this);
+//			t.start();
+//		}
+//		else {
+//			this.resume();
+//		}
+//	}
 	
 	public void run()
 	{
@@ -109,10 +109,10 @@ public class GrepProcess implements MigratableProcess
 		this.run();
 	}
 
-	@Override
-	public void terminate() {
-		terminated  = true;		
-	}
+//	@Override
+//	public void terminate() {
+//		terminated  = true;		
+//	}
 	
 	@Override
     public String toString() {
@@ -124,6 +124,25 @@ public class GrepProcess implements MigratableProcess
         showstring.append(this.outFile.getFileName());
         return showstring.toString();
     }
+
+
+	@Override
+	public void runProcess() {
+		//if it has never been started 
+		if (inFile.getFileIndex() == 0){
+			Thread t = new Thread(this);
+			t.start();
+		}
+		else {
+			this.resume();
+		}
+	}
+
+
+	@Override
+	public boolean isTerminated() {
+		return terminated;
+	}
 
 
 }

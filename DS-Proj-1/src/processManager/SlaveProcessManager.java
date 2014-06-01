@@ -50,10 +50,10 @@ public class SlaveProcessManager implements Runnable {
 				in = new ObjectInputStream(socket.getInputStream());
 				MigratableProcess process = (MigratableProcess)in.readObject();
 				//3.1 run process and add them to list
-				processList.add(process);
+				
 				MigratableProcess mp = processList.get(0);
-				Thread t = new Thread(mp);
-				t.start();
+				mp.runProcess();
+				processList.add(process);
 				//system log
 				System.out.println("Message Received from Master" + process.toString());
 
@@ -86,6 +86,22 @@ public class SlaveProcessManager implements Runnable {
 			e.printStackTrace();
 		}
 
+	}
+	
+	/*
+	 * check availability of slave
+	 */
+	public int checkList() {
+		for (MigratableProcess process : processList) {
+			if(process.isTerminated()) {
+				processList.remove(process);
+			}
+		}
+		return processList.size();
+	}
+	
+	public void sendAvailability() {
+		
 	}
 
 
@@ -143,38 +159,16 @@ public class SlaveProcessManager implements Runnable {
 						e.printStackTrace();
 					}
 				}
-
-//				while(true) {
-//					if(processList.size() > 0) {
-//						processList.get(0).suspend();
-//						migrateProcess("127.0.0.1", 15640, processList.get(0));
-//						processList.remove(0);
-//					}
-//				}
-				
-				
 			}
 		};
 		
-		
-		try {
-			t_receive.start();
-			Thread.sleep(5000);
-			t_migrate.start();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		
 		
-//		MigratableProcess g1 = processList.get(0);
-//
-//		Thread t1 = new Thread(g1);
-//		t1.start();
-//		Thread.sleep(2000);
-//		g1.suspend();
-//
-//		migrateProcess("127.0.0.1", 15640, g1);//to master
+		t_receive.start();
+		t_migrate.start();
+		
+		
 	}
 
 }

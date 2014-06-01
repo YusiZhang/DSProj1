@@ -95,10 +95,10 @@ public class ReplaceProcess implements MigratableProcess
 		this.notify();
 	}
 
-	@Override
-	public void terminate() {
-		terminated  = true;		
-	}
+//	@Override
+//	public void terminate() {
+//		terminated  = true;		
+//	}
 	
 	@Override
     public String toString() {
@@ -110,6 +110,18 @@ public class ReplaceProcess implements MigratableProcess
         showstring.append(this.outFile.getFileName());
         return showstring.toString();
     }
+
+	@Override
+	public void runProcess() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isTerminated() {
+		// TODO Auto-generated method stub
+		return terminated;
+	}
 
 
 }

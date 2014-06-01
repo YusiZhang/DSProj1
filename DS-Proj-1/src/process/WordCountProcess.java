@@ -84,8 +84,20 @@ public class WordCountProcess implements MigratableProcess{
 		this.notify();
 	}
 
+//	@Override
+//	public void terminate() {
+//		terminated  = true;
+//	}
+
 	@Override
-	public void terminate() {
-		terminated  = true;
+	public void runProcess() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isTerminated() {
+		// TODO Auto-generated method stub
+		return terminated;
 	}
 }

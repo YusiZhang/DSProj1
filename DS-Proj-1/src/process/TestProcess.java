@@ -39,11 +39,7 @@ public class TestProcess implements MigratableProcess{
 		
 	}
 
-	@Override
-	public void terminate() {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 	@Override
 	public TransactionalFileInputStream getInput() {
@@ -55,6 +51,18 @@ public class TestProcess implements MigratableProcess{
 	public TransactionalFileOutputStream getOutput() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void runProcess() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isTerminated() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
