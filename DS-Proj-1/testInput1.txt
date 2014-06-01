@@ -1,7 +1,10 @@
-The reflected binary code, 
-also known as Gray code after Frank Gray, 
-is a binary numeral system where two successive values differ 
-in only one bit (binary digit). code The reflected binary code
-was originally designed to prevent spurious output from electromechanical switches. 
-Today, Gray codes are widely used to facilitate error correction in digital 
-communications such as digital terrestrial television and some cable TV systems.
+line 1 in file1
+line 2 in file1
+line 3 in file1
+line 4 in file1
+line 5 in file1
+line 6 in file1
+line 7 in file1
+line 8 in file1
+line 9 in file1
+line 10 in file1

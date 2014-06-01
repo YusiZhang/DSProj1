@@ -13,6 +13,14 @@ public class TransactionalFileOutputStream extends OutputStream implements Seria
 	private long fileIndex;
 	private transient RandomAccessFile rf;
 	
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
 	public TransactionalFileOutputStream(String fileName, boolean b) {
 		this.fileName = fileName;
 		this.fileIndex = 0;

@@ -1,19 +1,10 @@
-So what is difference between start and run method? 
-Main difference is that when program calls start() 
-method a new Thread is created and code inside run() 
-method is executed in new Thread while if you call 
-run() method directly no new Thread is created and 
-code inside run() will execute on current Thread. 
-Most of the time calling run() is bug or programming 
-mistake because caller has intention of calling start() 
-to create new thread and this error can be detect by many
-static code coverage tools like findbugs. If you want to
-perform time consuming task than always call start() method
-otherwise your main thread will stuck while performing time
-consuming task if you call run() method directly. 
-difference between start vs run in Java thread is that 
-you can not call start() method twice on thread object. 
-once started, second call of start() will throw IllegalStateException
-in Java while you can call run() method twice.
-
-
+line 1 in file2
+line 2 in file2
+line 3 in file2
+line 4 in file2
+line 5 in file2
+line 6 in file2
+line 7 in file2
+line 8 in file2
+line 9 in file2
+line 10 in file2

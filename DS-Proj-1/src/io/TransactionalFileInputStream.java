@@ -11,6 +11,14 @@ public class TransactionalFileInputStream extends InputStream implements Seriali
 	private long fileIndex;
 	private transient RandomAccessFile rf;
 
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
 	public TransactionalFileInputStream(String fileName) {
 		this.fileName = fileName;
 		this.fileIndex = 0;
