@@ -40,6 +40,7 @@ public class MasterProcessManager implements Runnable {
 //			process = (MigratableProcess) processClass.newInstance();
 			System.out.println("MP is " + process.toString());
 			processList.add(process);
+			
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -117,22 +118,10 @@ public class MasterProcessManager implements Runnable {
 				 MigratableProcess process = (MigratableProcess)
 				 in.readObject();
 				 processList.add(process);
-				 
-				 Thread t = new Thread();
-					
-					int i = 0;
-					while(i < 5) {
-						i++;
-						t.sleep(1000);
-					}
-					in.close();
-					listener.close();
+
 
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			// 4.close connection
@@ -202,30 +191,44 @@ public class MasterProcessManager implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("MasterManager Running!");
-		// processList.get(0).run();
-		migrateProcess("127.0.0.1", 15644, processList.get(0));
-		try {
-			receiveProcess();
-			
-			System.out.println("run on master");
-			MigratableProcess g1 = processList.get(0);
-			Thread t1 = new Thread(g1);
-			t1.start();
-			Thread.sleep(2000);
-			g1.suspend();
-			
-			
-			migrateProcess("127.0.0.1", 15645, processList.get(0));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for(MigratableProcess process : processList) {
+			migrateProcess("127.0.0.1", 15644, process);
 		}
+
+		Thread t_receive = new Thread(){
+			@Override
+			public void run() {
+				super.run();
+				try {
+					receiveProcess();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		Thread t_migrate = new Thread () {
+			@Override
+			public void run() {
+				super.run();
+				while (true) {
+					if (processList.size() > 0) {
+						for (int i = 0; i < processList.size(); i++) {
+							processList.get(i).suspend();
+							migrateProcess("127.0.0.1", 15640, processList.get(i));
+							processList.remove(i);
+						}
+					}
+					try {
+						Thread.sleep(1500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
 
 	}
 

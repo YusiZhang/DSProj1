@@ -48,26 +48,17 @@ public class SlaveProcessManager implements Runnable {
 				
 				//3.read object from inputstream
 				in = new ObjectInputStream(socket.getInputStream());
-//				String s = (String)in.readObject();
 				MigratableProcess process = (MigratableProcess)in.readObject();
+				//3.1 run process and add them to list
 				processList.add(process);
+				MigratableProcess mp = processList.get(0);
+				Thread t = new Thread(mp);
+				t.start();
+				//system log
 				System.out.println("Message Received from Master" + process.toString());
 
-				
-				Thread t = new Thread();
-				
-				int i = 0;
-				while(i < 5) {
-					i++;
-					t.sleep(1000);
-				}
-				in.close();
-				listener.close();
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
 			//4.close connection
@@ -97,15 +88,7 @@ public class SlaveProcessManager implements Runnable {
 
 	}
 
-	/*
-	 * launch process on slave machine
-	 */
-	public void launchProcess() {
-		for (MigratableProcess process : processList) {
-			// risk of running twice????????????
-			process.run();
-		}
-	}
+
 
 	public String getHost() {
 		return host;
@@ -123,36 +106,75 @@ public class SlaveProcessManager implements Runnable {
 		this.port = port;
 	}
 
-	public void run() {
+	public void run()  {
 
 		// log start
 		System.out.println("Slave process manager starts!");
 		
+		Thread t_receive = new Thread(){
+			@Override
+			public void run() {
+				super.run();
+				try {
+					receiveProcess();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		Thread t_migrate = new Thread(){
+			@Override
+			public void run() {
+				super.run();
+				while(true) {
+					if(processList.size() > 0) {
+						for (int i = 0; i < processList.size(); i++) {
+							processList.get(i).suspend();
+							migrateProcess("127.0.0.1", 15640, processList.get(i));
+							processList.remove(i);
+						}
+					}
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+
+//				while(true) {
+//					if(processList.size() > 0) {
+//						processList.get(0).suspend();
+//						migrateProcess("127.0.0.1", 15640, processList.get(0));
+//						processList.remove(0);
+//					}
+//				}
+				
+				
+			}
+		};
+		
+		
 		try {
-			receiveProcess();
-			MigratableProcess g1 = processList.get(0);
-
-			Thread t1 = new Thread(g1);
-			t1.start();
-			Thread.sleep(2000);
-			g1.suspend();
-
-			migrateProcess("127.0.0.1", 15640, g1);//to master
-
-			
-			
-
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			t_receive.start();
+			Thread.sleep(5000);
+			t_migrate.start();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+//		MigratableProcess g1 = processList.get(0);
+//
+//		Thread t1 = new Thread(g1);
+//		t1.start();
+//		Thread.sleep(2000);
+//		g1.suspend();
+//
+//		migrateProcess("127.0.0.1", 15640, g1);//to master
 	}
 
 }
