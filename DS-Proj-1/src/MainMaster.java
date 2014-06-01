@@ -22,10 +22,15 @@ public class MainMaster {
 		
 		
 		try {
-			String[] args1 = {"arg1", "arg2"};
-			masterManager.launchProcessConfig("process.TestProcess", args1);
+//			String[] args1 = {"arg1", "arg2"};
+			String[] para1 = new String[3];
+			para1[0] = "line";
+			para1[1] = "testInput1.txt";
+			para1[2] = "testOutput1.txt";
+			masterManager.launchProcessConfig("process.GrepProcess", para1);
 //			masterManager.launchProcessConfig("process.TestProcess", "Yusi");
 			masterManager.run();
+
 			
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block

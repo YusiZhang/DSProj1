@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.swing.table.TableColumn;
+
 import process.MigratableProcess;
 
 public class SlaveProcessManager implements Runnable {
@@ -48,13 +50,14 @@ public class SlaveProcessManager implements Runnable {
 				in = new ObjectInputStream(socket.getInputStream());
 //				String s = (String)in.readObject();
 				MigratableProcess process = (MigratableProcess)in.readObject();
+				processList.add(process);
 				System.out.println("Message Received from Master" + process.toString());
 
 				
 				Thread t = new Thread();
 				
 				int i = 0;
-				while(i < 10) {
+				while(i < 5) {
 					i++;
 					t.sleep(1000);
 				}
@@ -124,12 +127,29 @@ public class SlaveProcessManager implements Runnable {
 
 		// log start
 		System.out.println("Slave process manager starts!");
+		
 		try {
 			receiveProcess();
+			MigratableProcess g1 = processList.get(0);
+
+			Thread t1 = new Thread(g1);
+			t1.start();
+			Thread.sleep(2000);
+			g1.suspend();
+
+			migrateProcess("127.0.0.1", 15640, g1);//to master
+
+			
+			
+
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

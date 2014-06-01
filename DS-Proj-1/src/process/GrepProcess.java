@@ -43,12 +43,21 @@ public class GrepProcess implements MigratableProcess
 
 		try {
 			while (!suspending) {
+//				System.out.println("Grep Starts!!!");
+//				System.out.println(in);
+//				System.out.println(inFile.fileName);
+				
 				String line = in.readLine();
-
+//				BufferedReader d = new BufferedReader(new InputStreamReader(in));
+//				String line = d.readLine();
+				
+				
+				System.out.println(line);
 				if (line == null) break;
 				
 				if (line.contains(query)) {
 					out.println(line);
+
 				}
 				// Make grep take longer so that we don't require extremely large files for interesting results
 				try {
