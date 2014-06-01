@@ -19,12 +19,11 @@ public class MainSlave {
 	
 	public static void main(String[] args) {
 		SlaveProcessManager slaveManager = new SlaveProcessManager("127.0.0.1", 15644);
-		SlaveProcessManager slaveManager2 = new SlaveProcessManager("127.0.0.1", 15645);
 		
 		
 		try {
 			slaveManager.run();
-			slaveManager2.run();
+//			slaveManager2.run();
 			
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
