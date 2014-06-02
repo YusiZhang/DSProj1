@@ -7,7 +7,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import process.MigratableProcess;
 import process.TestProcess;
@@ -16,13 +20,14 @@ public class MasterProcessManager implements Runnable {
 
 	private String host; // host of current master server
 	private int port; // port of current master server
-	private ArrayList<SlaveBean> slaveList;
+	private TreeMap<SlaveBean,Integer> slaveList; //integer is running process on the slave
+	
 	private ArrayList<MigratableProcess> processList;
 
 	public MasterProcessManager(String host, int port) {
 		this.host = host;
 		this.port = port;
-		slaveList = new ArrayList<SlaveBean>();
+		slaveList = new TreeMap<SlaveBean,Integer>();
 		processList = new ArrayList<MigratableProcess>();
 	}
 
@@ -66,7 +71,7 @@ public class MasterProcessManager implements Runnable {
 	 */
 	public void addSlave(String slaveHost, int slavePort) {
 		SlaveBean slave = new SlaveBean(slaveHost, slavePort);
-		slaveList.add(slave);
+		slaveList.put(slave, 0);
 	}
 
 	/**
@@ -84,11 +89,6 @@ public class MasterProcessManager implements Runnable {
 
 	}
 
-	public SlaveBean getSlave() {
-		String host = "127.0.0.1";
-		int port = 15641;
-		return new SlaveBean(host, port);
-	}
 
 	/*
 	 * receive process sent from slaves via socket
@@ -129,6 +129,15 @@ public class MasterProcessManager implements Runnable {
 			listener.close();
 		}
 	}
+	
+	/*
+	 * migrate to the best
+	 */
+	
+	public void migrateProcessBest(MigratableProcess process) {
+		SlaveBean bestSlave = getBestSlave();
+//		migrateProcess(bestSlave.getHost(), slavePort, process);
+	}
 
 	/*
 	 * migrate process to slave
@@ -157,20 +166,54 @@ public class MasterProcessManager implements Runnable {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/*
-	 * check all slaves and balance load of slaves
+	 * check every slave and its availability
 	 */
-	public void heartBeat(String slaveHost, int slavePort) {
+	
+	public void checkSlave() throws IOException, ClassNotFoundException{
+		ServerSocket listener = null;
+		Socket socket;
+		ObjectInputStream in = null;
+		
+		try {
+			//1. creating a server socket
+			listener = new ServerSocket(15440);
+			
+			while(true) {
+				
+				//2. wait for connection
+				System.out.println("Waiting for connection");
+				socket = listener.accept();
+				
+				//3.read object from inputstream
+				in = new ObjectInputStream(socket.getInputStream());
+				SlaveBean slave = (SlaveBean)in.readObject();
+				slaveList.put(slave, slave.getCurCount());
 
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			//4.close connection
+			in.close();
+			listener.close();
+		}
+	}
+	
+	/*
+	 * get best slave to migarate/min of process on a slave
+	 */
+	public SlaveBean getBestSlave(){
+		Entry<SlaveBean, Integer> min = null;
+		for(Entry<SlaveBean, Integer> entry : slaveList.entrySet()) {
+			if (min == null || min.getValue() > entry.getValue()) {
+		        min = entry;
+		    }
+		}
+		return min.getKey();
 	}
 
-	/*
-	 * balance load
-	 */
-	public void balanceSlave() {
-
-	}
 
 	public String getHost() {
 		return host;
@@ -209,26 +252,17 @@ public class MasterProcessManager implements Runnable {
 			}
 		};
 		
-		Thread t_migrate = new Thread () {
+		
+		Thread t_checkSlave = new Thread(){
 			@Override
 			public void run() {
 				super.run();
-				while (true) {
-					if (processList.size() > 0) {
-						for (int i = 0; i < processList.size(); i++) {
-							processList.get(i).suspend();
-							migrateProcess("127.0.0.1", 15640, processList.get(i));
-							processList.remove(i);
-						}
-					}
-					try {
-						Thread.sleep(1500);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
+				checkAccess();
 			}
 		};
+		
+		t_receive.start();
+		t_checkSlave.start();
 
 	}
 

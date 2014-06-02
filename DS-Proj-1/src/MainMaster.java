@@ -30,6 +30,7 @@ public class MainMaster {
 			masterManager.launchProcessConfig("process.GrepProcess", para1);
 //			masterManager.launchProcessConfig("process.TestProcess", "Yusi");
 			masterManager.run();
+//			masterManager.migrateProcess(slaveHost, slavePort, process);
 
 			
 		} catch (SecurityException e) {

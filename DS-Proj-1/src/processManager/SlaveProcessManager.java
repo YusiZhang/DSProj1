@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -100,8 +101,27 @@ public class SlaveProcessManager implements Runnable {
 		return processList.size();
 	}
 	
-	public void sendAvailability() {
-		
+	/*
+	 * send aval to master
+	 */
+	public void sendAvailability(String masterHost, int masterPort,
+			int aval) {
+		Socket socket;
+		OutputStream os;
+		try {
+			socket = new Socket(masterHost, masterPort);
+			os = socket.getOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			SlaveBean slave = new SlaveBean(getHost(),getPort());
+			slave.setCurCount(checkList());
+			oos.writeObject(slave);
+			oos.close();
+			os.close();
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 
@@ -141,32 +161,32 @@ public class SlaveProcessManager implements Runnable {
 			}
 		};
 		
-		Thread t_migrate = new Thread(){
-			@Override
-			public void run() {
-				super.run();
-				while(true) {
-					if(processList.size() > 0) {
-						for (int i = 0; i < processList.size(); i++) {
-							processList.get(i).suspend();
-							migrateProcess("127.0.0.1", 15640, processList.get(i));
-							processList.remove(i);
-						}
-					}
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		};
+//		Thread t_migrate = new Thread(){
+//			@Override
+//			public void run() {
+//				super.run();
+//				while(true) {
+//					if(processList.size() > 0) {
+//						for (int i = 0; i < processList.size(); i++) {
+//							processList.get(i).suspend();
+//							migrateProcess("127.0.0.1", 15640, processList.get(i));
+//							processList.remove(i);
+//						}
+//					}
+//					try {
+//						Thread.sleep(5000);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		};
 		
 
 		
 		
 		t_receive.start();
-		t_migrate.start();
+//		t_migrate.start();
 		
 		
 	}
