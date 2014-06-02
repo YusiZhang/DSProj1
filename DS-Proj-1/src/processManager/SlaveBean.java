@@ -58,5 +58,16 @@ public class SlaveBean implements Serializable{
 			return true;
 		}
 	}
+	@Override
+    public String toString() {
+//        StringBuilder showstring = new StringBuilder("GrepProcess ");
+//        showstring.append(this.query);
+//        showstring.append(" ");
+//        showstring.append(this.inFile.getFileName());
+//        showstring.append(" ");
+//        showstring.append(this.outFile.getFileName());
+//        return showstring.toString();
+		return "bean";
+    }
 
 }

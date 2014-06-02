@@ -1,3 +1,7 @@
+/*
+ * author yusi
+ * version 2
+ */
 package processManager;
 
 import java.io.*;
@@ -14,7 +18,10 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import communication.MySocket;
+import communication.MySocketServer;
 import process.MigratableProcess;
+import process.RequestBean;
 import process.TestProcess;
 
 public class MasterProcessManager implements Runnable {
@@ -22,46 +29,43 @@ public class MasterProcessManager implements Runnable {
 	private String host; // host of current master server
 	private int port; // port of current master server
 	public HashMap<SlaveBean,Integer> slaveList; //integer is running process on the slave
-	
-	public ArrayList<MigratableProcess> processList;
+	public MySocketServer server;
+	public MySocket socekt;
+	public ArrayList<MigratableProcess>initProcessList;
+	public HashMap<Integer, HashMap<Integer,MigratableProcess>> slaveProcessList;
 
 	public MasterProcessManager(String host, int port) {
 		this.host = host;
 		this.port = port;
 		slaveList = new HashMap<SlaveBean,Integer>();
-		processList = new ArrayList<MigratableProcess>();
+		initProcessList = new ArrayList<MigratableProcess>();
+		server = new MySocketServer(this.port);
+		slaveProcessList = new HashMap<Integer, HashMap<Integer,MigratableProcess>>();
 	}
 
 	/*
-	 * launch process config input: className and args
+	 * launch process config input: className customized name and  args
 	 */
-	public void launchProcessConfig(String className, String[] args)
+	public void launchProcessConfig(String className,String[] args)
 			throws SecurityException, NoSuchMethodException {
 
 		try {
 			Class<?> processClass = Class.forName(className);
-			// System.out.print("processClass is " + processClass.toString());
 			MigratableProcess process;
 			process = (MigratableProcess)processClass.getConstructor(String[].class).newInstance((Object)args);
-//			process = (MigratableProcess) processClass.newInstance();
 			System.out.println("MP is " + process.toString());
-			processList.add(process);
+			initProcessList.add(process);
 			
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} // TestProcess test = new TestProcess();
+		} 
 		catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -80,118 +84,109 @@ public class MasterProcessManager implements Runnable {
 	 */
 	public void removeSlave(String slaveHost, int slavePort) {
 		slaveList.remove(slaveHost);
-		// collect remaining process
 	}
 
 
 
+
 	/*
-	 * receive process sent from slaves via socket
+	 * listening port
 	 */
-	public void receiveProcess() throws IOException, ClassNotFoundException {
-		ServerSocket listener = null;
-		Socket socket;
-		ObjectInputStream in = null;
-
-		try {
-			// 1. creating a server socket
-			listener = new ServerSocket(getPort());
-
-			while (true) {
-
-				// 2. wait for connection
-				System.out.println("Master Waiting for Slave");
-				socket = listener.accept();
-				System.out.println("Connection received from "
-						+ listener.getInetAddress().getHostName());
-
-				// 3.read object from inputstream
-				in = new ObjectInputStream(socket.getInputStream());
-//				String s = (String) in.readObject();
-//				System.out.println("Message Received from slave" + s);
-
-				 MigratableProcess process = (MigratableProcess)in.readObject();
-				 processList.add(process);
-
-
+	public void listen() {
+		//thead
+		server.listen();
+		
+		Thread t = new Thread (){
+			MigratableProcess process;
+			SlaveBean slave;
+			HashMap<Integer,MigratableProcess>processList;
+			@Override
+			public void run() {
+				super.run();
+				while(true) {
+					if(server.getObject()!=null && server.getObject().toString().equals("grep")){
+						//get process
+						//check best slave and migrate process to it.
+						MigratableProcess process = (MigratableProcess)server.getObject();
+						migrateProcessBest(process);
+						server.setObject(null);
+					}
+					if (server.getObject()!=null && server.getObject().toString().equals("bean")){
+						// get slave bean
+						//update slave bean
+						
+						SlaveBean slave = (SlaveBean) server.getObject();
+						slaveList.put(slave, slave.getCurCount());
+						System.out.println("get count" + slave.getPort() + " count " + slave.getCurCount());
+						server.setObject(null);
+					} else if(server.getObject()!=null && server.getObject().getClass().isInstance(processList)){
+						HashMap<Integer,MigratableProcess> processList = (HashMap<Integer, MigratableProcess>) server.getObject();
+						
+						slaveProcessList.put(server.getSocket().getPort(), processList);
+						server.setObject(null);
+					}
+					
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			// 4.close connection
-			in.close();
-			listener.close();
-		}
+		};
+		
+		t.start();
+	}
+	
+	/*
+	 * send to slave
+	 */
+	public void send(String host, int port, Object obj) {
+		socekt = new MySocket(host, port);
+		socekt.send(obj);		
 	}
 	
 	/*
 	 * migrate to the best
 	 */
-	
-	public void migrateProcessBest(MigratableProcess process) {
-		SlaveBean bestSlave = getBestSlave();
-		migrateProcess(bestSlave.getHost(), bestSlave.getPort(), process);
+	public void migrateProcessBest(MigratableProcess process)  {
+		try {
+			checkSlave();
+			Thread.sleep(1000);
+			SlaveBean bestSlave = getBestSlave();
+			Thread.sleep(1000);
+			send(bestSlave.getHost(), bestSlave.getPort(), process);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	/*
-	 * migrate process to slave
+	 * init migrate process
 	 */
-	public void migrateProcess(String slaveHost, int slavePort,
-			MigratableProcess process) {
-		Socket socket;
-		ObjectOutputStream os;
-		System.out.println("Master mig to slave " + slaveHost + "with port "
-				+ slavePort);
-		try {
-			socket = new Socket(slaveHost, slavePort);
-			os = new ObjectOutputStream(socket.getOutputStream());
-			os.flush();
-			System.out.println("Mig " + process.toString());
-			os.writeObject(process);
-			os.close();
-			socket.close();
-
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public void initMigrate() throws InterruptedException {
+		for(MigratableProcess process : initProcessList) {
+			migrateProcessBest(process);
+			Thread.sleep(1000);
 		}
 	}
 	
 	/*
 	 * check every slave and its availability
 	 */
-	
-	public void checkSlave() throws IOException, ClassNotFoundException{
-		ServerSocket listener = null;
-		Socket socket;
-		ObjectInputStream in = null;
-		
-		try {
-			//1. creating a server socket
-			listener = new ServerSocket(15440);
-			
-			while(true) {
-				
-				//2. wait for connection
-//				System.out.println("Waiting for checkSlave");
-				socket = listener.accept();
-				
-				//3.read object from inputstream
-				in = new ObjectInputStream(socket.getInputStream());
-				SlaveBean slave = (SlaveBean)in.readObject();
-				slaveList.put(slave, slave.getCurCount());
-
-
+	public void checkSlave () {
+		for(SlaveBean slave : slaveList.keySet()) {
+			send(slave.getHost(),slave.getPort(),"checkAval");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}finally {
-			//4.close connection
-			in.close();
-			listener.close();
 		}
 	}
+
 	
 	/*
 	 * get best slave to migarate/min of process on a slave
@@ -207,8 +202,35 @@ public class MasterProcessManager implements Runnable {
 		System.out.println("Min ip "+ min.getKey().getPort() + "value" + min.getValue());
 		return min.getKey();
 	}
+	
+	/*
+	 * request mig 
+	 */
+	public void requestMig(String host,int port, int processId) {
+		send(host, port, processId);
+	}
+	/*
+	 * request process info on slave
+	 */
+	public void requestProessInfo(String host, int port) {
+		send(host, port, "checkInfo");
+	}
 
 
+	/*
+	 * get slave process info
+	 */
+	
+	public void getSlaveProcessInfo() {
+		for (Integer port : slaveProcessList.keySet()) {
+			System.out.print(port + " ");
+			for(Integer processId : slaveProcessList.get(port).keySet()) {
+				System.out.print(processId + " ");
+				System.out.print(slaveProcessList.get(port).get(processId).toString());
+			}
+		}
+	}
+	
 	public String getHost() {
 		return host;
 	}
@@ -227,45 +249,7 @@ public class MasterProcessManager implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("MasterManager Running!");
-
-
-		Thread t_receive = new Thread(){
-			@Override
-			public void run() {
-				super.run();
-				try {
-					receiveProcess();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		
-		
-		Thread t_checkSlave = new Thread(){
-			@Override
-			public void run() {
-				super.run();
-				try {
-					checkSlave();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		};
-		
-		t_receive.start();
-		t_checkSlave.start();
-		
-		
-
+		listen();
 	}
 
 }

@@ -5,36 +5,49 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import process.MigratableProcess;
+import communication.MySocketServer;
+
 public class Master {
-	public static void main(String[] args) throws ClassNotFoundException, IOException {
-		ServerSocket listener = null;
-		Socket socket;
-		ObjectInputStream in = null;
-		
-		try {
-			//1. creating a server socket
-			listener = new ServerSocket(15640);
-			
-			while(true) {
-				
-				//2. wait for connection
-				System.out.println("Waiting for connection");
-				socket = listener.accept();
-				System.out.println("Connection received from " + listener.getInetAddress().getHostName());
-				
-				//3.read object from inputstream
-				in = new ObjectInputStream(socket.getInputStream());
-				String s = (String)in.readObject();
-				System.out.println("Message Received from slave" + s);
-				
-				
+	public static void main(String[] args) throws InterruptedException {
+		final MySocketServer server = new MySocketServer(15640);
+
+		Thread t = new Thread(){
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				super.run();
+				server.listen();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}finally {
-			//4.close connection
-			in.close();
-			listener.close();
-		}
+		};
+		
+		Thread t2 = new Thread() {
+			MigratableProcess process = null;
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				super.run();
+				while(true) {
+					if (server.getObject() != null && server.getObject().toString().equals("grep")) {
+						System.out.println("Coming process");
+						process = (MigratableProcess) server.getObject();
+						process.runProcess();
+						server.setObject(null);
+					}
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		
+		t.start();
+		
+		t2.start();
+		
+
 	}
 }
