@@ -188,7 +188,19 @@ public class SlaveProcessManager implements Runnable {
 
 		Thread t_sendAval = new Thread() {
 			public void run() {
-				sendAvailability("127.0.0.1", 15440);
+				try {
+					while(true){
+						sendAvailability("127.0.0.1", 15440);
+						Thread.sleep(2000);
+						
+					}
+					
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
 			}
 		};
 		

@@ -83,12 +83,6 @@ public class MasterProcessManager implements Runnable {
 		// collect remaining process
 	}
 
-	/**
-	 * build connection to slave via socket
-	 */
-	public void connSlave(String slaveHost, int slavePort) {
-
-	}
 
 
 	/*
@@ -116,8 +110,7 @@ public class MasterProcessManager implements Runnable {
 //				String s = (String) in.readObject();
 //				System.out.println("Message Received from slave" + s);
 
-				 MigratableProcess process = (MigratableProcess)
-				 in.readObject();
+				 MigratableProcess process = (MigratableProcess)in.readObject();
 				 processList.add(process);
 
 
@@ -153,9 +146,6 @@ public class MasterProcessManager implements Runnable {
 			socket = new Socket(slaveHost, slavePort);
 			os = new ObjectOutputStream(socket.getOutputStream());
 			os.flush();
-			String s = "Greeting from Master";
-			// os.writeObject(s);
-
 			System.out.println("Mig " + process.toString());
 			os.writeObject(process);
 			os.close();
@@ -184,13 +174,14 @@ public class MasterProcessManager implements Runnable {
 			while(true) {
 				
 				//2. wait for connection
-				System.out.println("Waiting for connection");
+//				System.out.println("Waiting for checkSlave");
 				socket = listener.accept();
 				
 				//3.read object from inputstream
 				in = new ObjectInputStream(socket.getInputStream());
 				SlaveBean slave = (SlaveBean)in.readObject();
 				slaveList.put(slave, slave.getCurCount());
+
 
 			}
 		} catch (IOException e) {
@@ -208,10 +199,12 @@ public class MasterProcessManager implements Runnable {
 	public SlaveBean getBestSlave(){
 		Entry<SlaveBean, Integer> min = null;
 		for(Entry<SlaveBean, Integer> entry : slaveList.entrySet()) {
+			System.out.println("ip "+ entry.getKey().getPort() + "value" + entry.getValue());
 			if (min == null || min.getValue() > entry.getValue()) {
 		        min = entry;
 		    }
 		}
+		System.out.println("Min ip "+ min.getKey().getPort() + "value" + min.getValue());
 		return min.getKey();
 	}
 
@@ -268,14 +261,8 @@ public class MasterProcessManager implements Runnable {
 			}
 		};
 		
-		try {
-			t_receive.start();
-			Thread.sleep(5000);
-			t_checkSlave.start();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		t_receive.start();
+		t_checkSlave.start();
 		
 		
 

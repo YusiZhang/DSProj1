@@ -39,14 +39,14 @@ public class MainMaster {
 			
 			masterManager.run();
 			
-			Thread.sleep(5000);
+			Thread.sleep(10000);
 			
 			masterManager.migrateProcessBest(masterManager.processList.get(0));
-			Thread.sleep(2500);
-			masterManager.migrateProcessBest(masterManager.processList.get(1));
-			Thread.sleep(2500);
-			masterManager.migrateProcessBest(masterManager.processList.get(2));
-			Thread.sleep(2500);
+			Thread.sleep(8000);
+//			masterManager.migrateProcessBest(masterManager.processList.get(1));
+//			Thread.sleep(8000);
+//			masterManager.migrateProcessBest(masterManager.processList.get(2));
+//			Thread.sleep(8000);
 			
 			
 			
