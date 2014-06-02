@@ -51,10 +51,13 @@ public class SlaveProcessManager implements Runnable {
 				in = new ObjectInputStream(socket.getInputStream());
 				MigratableProcess process = (MigratableProcess)in.readObject();
 				//3.1 run process and add them to list
-				
-				MigratableProcess mp = processList.get(0);
-				mp.runProcess();
 				processList.add(process);
+//				MigratableProcess mp = processList.get(0);
+				for(MigratableProcess mp : processList) {
+					mp.runProcess();
+				}
+//				mp.runProcess();
+				
 				//system log
 				System.out.println("Message Received from Master" + process.toString());
 
@@ -104,11 +107,11 @@ public class SlaveProcessManager implements Runnable {
 	/*
 	 * send aval to master
 	 */
-	public void sendAvailability(String masterHost, int masterPort,
-			int aval) {
+	public void sendAvailability(String masterHost, int masterPort) {
 		Socket socket;
 		OutputStream os;
 		try {
+			
 			socket = new Socket(masterHost, masterPort);
 			os = socket.getOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -183,9 +186,14 @@ public class SlaveProcessManager implements Runnable {
 //		};
 		
 
-		
+		Thread t_sendAval = new Thread() {
+			public void run() {
+				sendAvailability("127.0.0.1", 15440);
+			}
+		};
 		
 		t_receive.start();
+		t_sendAval.start();
 //		t_migrate.start();
 		
 		

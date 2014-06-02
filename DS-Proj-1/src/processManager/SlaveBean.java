@@ -1,6 +1,8 @@
 package processManager;
 
-public class SlaveBean {
+import java.io.Serializable;
+
+public class SlaveBean implements Serializable{
 	private final int maxCapacity = 10;
 	private String host;
 	private int port;

@@ -14,11 +14,11 @@ import processManager.SlaveProcessManager;
 /*
  * Main entry 
  */
-public class MainSlave2 {
+public class MainSlave3 {
 	
 	
 	public static void main(String[] args) {
-		SlaveProcessManager slaveManager2 = new SlaveProcessManager("127.0.0.1", 15645);
+		SlaveProcessManager slaveManager2 = new SlaveProcessManager("127.0.0.1", 15646);
 		
 		slaveManager2.run();
 			

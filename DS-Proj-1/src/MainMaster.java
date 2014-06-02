@@ -28,15 +28,35 @@ public class MainMaster {
 			para1[1] = "testInput1.txt";
 			para1[2] = "testOutput1.txt";
 			masterManager.launchProcessConfig("process.GrepProcess", para1);
-//			masterManager.launchProcessConfig("process.TestProcess", "Yusi");
+			masterManager.launchProcessConfig("process.GrepProcess", para1);
+			masterManager.launchProcessConfig("process.GrepProcess", para1);
+			
+			masterManager.addSlave("127.0.0.1", 15644);
+			masterManager.addSlave("127.0.0.1", 15645);
+			masterManager.addSlave("127.0.0.1", 15646);
+			
+			
+			
 			masterManager.run();
-//			masterManager.migrateProcess(slaveHost, slavePort, process);
-
+			
+			Thread.sleep(5000);
+			
+			masterManager.migrateProcessBest(masterManager.processList.get(0));
+			Thread.sleep(2500);
+			masterManager.migrateProcessBest(masterManager.processList.get(1));
+			Thread.sleep(2500);
+			masterManager.migrateProcessBest(masterManager.processList.get(2));
+			Thread.sleep(2500);
+			
+			
 			
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

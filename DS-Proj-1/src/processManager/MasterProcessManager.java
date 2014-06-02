@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -20,14 +21,14 @@ public class MasterProcessManager implements Runnable {
 
 	private String host; // host of current master server
 	private int port; // port of current master server
-	private TreeMap<SlaveBean,Integer> slaveList; //integer is running process on the slave
+	public HashMap<SlaveBean,Integer> slaveList; //integer is running process on the slave
 	
-	private ArrayList<MigratableProcess> processList;
+	public ArrayList<MigratableProcess> processList;
 
 	public MasterProcessManager(String host, int port) {
 		this.host = host;
 		this.port = port;
-		slaveList = new TreeMap<SlaveBean,Integer>();
+		slaveList = new HashMap<SlaveBean,Integer>();
 		processList = new ArrayList<MigratableProcess>();
 	}
 
@@ -136,7 +137,7 @@ public class MasterProcessManager implements Runnable {
 	
 	public void migrateProcessBest(MigratableProcess process) {
 		SlaveBean bestSlave = getBestSlave();
-//		migrateProcess(bestSlave.getHost(), slavePort, process);
+		migrateProcess(bestSlave.getHost(), bestSlave.getPort(), process);
 	}
 
 	/*
@@ -234,9 +235,7 @@ public class MasterProcessManager implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("MasterManager Running!");
-		for(MigratableProcess process : processList) {
-			migrateProcess("127.0.0.1", 15644, process);
-		}
+
 
 		Thread t_receive = new Thread(){
 			@Override
@@ -257,12 +256,28 @@ public class MasterProcessManager implements Runnable {
 			@Override
 			public void run() {
 				super.run();
-				checkAccess();
+				try {
+					checkSlave();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		};
 		
-		t_receive.start();
-		t_checkSlave.start();
+		try {
+			t_receive.start();
+			Thread.sleep(5000);
+			t_checkSlave.start();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 
 	}
 
