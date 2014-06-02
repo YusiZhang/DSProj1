@@ -12,12 +12,7 @@ public class ConsoleTest {
 	public static void main(String[] args) {
 		MasterProcessManager masterManager = new MasterProcessManager("127.0.0.1",15640);
 		
-		
 		try {
-			String[] para1 = new String[3];
-			para1[0] = "line";
-			para1[1] = "testInput1.txt";
-			para1[2] = "testOutput1.txt";
 			String cmd; 
 			while (true) {
 				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -25,7 +20,17 @@ public class ConsoleTest {
 				cmd = in.readLine();
 				System.out.println("here " + cmd);
 				if (cmd.equals("grep")){
-					masterManager.launchProcessConfig("process.GrepProcess", para1);
+					String[] para = new String[3];
+					System.out.println("please input the query:");
+					in = new BufferedReader(new InputStreamReader(System.in));
+					para[0] = in.readLine();
+					System.out.println("please input the input file:");
+					in = new BufferedReader(new InputStreamReader(System.in));
+					para[1] = in.readLine();
+					System.out.println("please input the output file:");
+					in = new BufferedReader(new InputStreamReader(System.in));
+					para[2] = in.readLine();
+					masterManager.launchProcessConfig("process.GrepProcess", para);
 					masterManager.run();
 				}
 				else if (cmd.equals("migrate")){
@@ -41,11 +46,9 @@ public class ConsoleTest {
 					in = new BufferedReader(new InputStreamReader(System.in));
 					desSlave = in.readLine();
 					
-					//all the current slaves with current processes
-//					System.out.println(masterManager.slaveList);
+					//print all the current slaves with current processes
 					System.out.println("what do I need to do");
 				}
-//				if (cmd.equals("a")) System.out.println("here I get a");
 			}
 //			masterManager.run();
 
