@@ -80,8 +80,9 @@ public class SlaveProcessManager implements Runnable {
 						}
 						
 						
-					} else if (server.getObject()!=null && server.getObject().getClass().isInstance(processId)) {
+					} else if (server.getObject()!=null && server.getObject().getClass().isInstance(1)) {
 						//get processId and mig process back to master
+						System.out.println("Mig called!!!!!!!!");
 						Integer processId = (Integer)server.getObject();
 						if(processList.get(processId).isTerminated()) {
 							System.out.println("Process " + processId + "is finished(terminated)");
@@ -132,6 +133,10 @@ public class SlaveProcessManager implements Runnable {
 		System.out.println("processList size is " + processList.size());
 		return processList.size();
 	}
+	
+	/*
+	 * version 1 mig  
+	 */
 	
 
 	public String getHost() {

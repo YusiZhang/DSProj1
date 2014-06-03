@@ -11,14 +11,20 @@ public class ConsoleTest {
 	
 	public static void main(String[] args) {
 		MasterProcessManager masterManager = new MasterProcessManager("127.0.0.1",15640);
+		masterManager.addSlave("127.0.0.1", 15641);
+		masterManager.addSlave("127.0.0.1", 15642);
+		masterManager.addSlave("127.0.0.1", 15643);
 		
 		try {
 			String cmd; 
+			System.out.println("Launch Configruation");
+			System.out.println("What process do you want to launch?");
 			while (true) {
 				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 //				System.out.println(System.in);
 				cmd = in.readLine();
-				System.out.println("here " + cmd);
+//				System.out.println("here " + cmd);
+				
 				if (cmd.equals("grep")){
 					String[] para = new String[3];
 					System.out.println("please input the query:");
@@ -32,6 +38,13 @@ public class ConsoleTest {
 					para[2] = in.readLine();
 					masterManager.launchProcessConfig("process.GrepProcess", para);
 					masterManager.run();
+					masterManager.initMigrate();
+					System.out.println("Do you wannat start master now?");
+//					in = new BufferedReader(new InputStreamReader(System.in));
+//					if(in.readLine().equals("yes")) {
+//						masterManager.initMigrate();
+//					}
+	
 				}
 				else if (cmd.equals("migrate")){
 					String p, srcSlave, desSlave;
@@ -60,6 +73,9 @@ public class ConsoleTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 

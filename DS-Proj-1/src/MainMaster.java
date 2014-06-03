@@ -34,10 +34,15 @@ public class MainMaster {
 			masterManager.addSlave("127.0.0.1", 15642);
 			masterManager.addSlave("127.0.0.1", 15643);
 			
-			Thread.sleep(10000);
+			Thread.sleep(4000);
 			
 			masterManager.initMigrate();
 			masterManager.run();
+			masterManager.requestMig("127.0.0.1", 15641, 1);
+//			System.out.println("Mig start!!!!!!!");
+//			masterManager.requestMig("127.0.0.1", 15641, 1);
+//			masterManager.requestMig("127.0.0.1", 15642, 1);
+//			masterManager.requestMig("127.0.0.1", 15643, 1);
 
 			
 		} catch (SecurityException e) {

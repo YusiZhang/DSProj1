@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -28,7 +29,7 @@ public class MasterProcessManager implements Runnable {
 
 	private String host; // host of current master server
 	private int port; // port of current master server
-	public HashMap<SlaveBean,Integer> slaveList; //integer is running process on the slave
+	public Hashtable<SlaveBean,Integer> slaveList; //integer is running process on the slave
 	public MySocketServer server;
 	public MySocket socekt;
 	public ArrayList<MigratableProcess>initProcessList;
@@ -37,7 +38,7 @@ public class MasterProcessManager implements Runnable {
 	public MasterProcessManager(String host, int port) {
 		this.host = host;
 		this.port = port;
-		slaveList = new HashMap<SlaveBean,Integer>();
+		slaveList = new Hashtable<SlaveBean,Integer>();
 		initProcessList = new ArrayList<MigratableProcess>();
 		server = new MySocketServer(this.port);
 		slaveProcessList = new HashMap<Integer, HashMap<Integer,MigratableProcess>>();
@@ -108,7 +109,8 @@ public class MasterProcessManager implements Runnable {
 						//get process
 						//check best slave and migrate process to it.
 						MigratableProcess process = (MigratableProcess)server.getObject();
-						migrateProcessBest(process);
+//						migrateProcessBest(process);
+						migrateToSlave("127.0.0.1", 15642, process);
 						server.setObject(null);
 					}
 					if (server.getObject()!=null && server.getObject().toString().equals("bean")){
@@ -168,9 +170,18 @@ public class MasterProcessManager implements Runnable {
 	 */
 	public void initMigrate() throws InterruptedException {
 		for(MigratableProcess process : initProcessList) {
-			migrateProcessBest(process);
+//			migrateProcessBest(process);
+			send("127.0.0.1", 15641, process);
 			Thread.sleep(1000);
 		}
+	}
+	
+	/*
+	 * mig to certain slave
+	 */
+	
+	public void migrateToSlave(String host, int port, MigratableProcess process) {
+		send(host,port,process);
 	}
 	
 	/*
@@ -187,6 +198,7 @@ public class MasterProcessManager implements Runnable {
 		}
 	}
 
+	
 	
 	/*
 	 * get best slave to migarate/min of process on a slave
