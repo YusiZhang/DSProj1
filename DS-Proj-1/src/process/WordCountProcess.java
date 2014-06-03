@@ -38,17 +38,6 @@ public class WordCountProcess implements MigratableProcess
 	}
 
 	
-//	public void runProcess(){
-//		//if it has never been started 
-//		if (inFile.getFileIndex() == 0){
-//			Thread t = new Thread(this);
-//			t.start();
-//		}
-//		else {
-//			this.resume();
-//		}
-//	}
-	
 	public void run()
 	{
 		PrintStream out = new PrintStream(outFile);
@@ -59,7 +48,7 @@ public class WordCountProcess implements MigratableProcess
 				String line = in.readLine();
 
 				if (line == null) {
-					System.out.println(count);
+					System.out.println("there are "+count+" "+this.query+" in the file "+ inFile.getFileName());
 					outFile.write((int)count);
 					terminated = true;
 					break;
@@ -72,7 +61,7 @@ public class WordCountProcess implements MigratableProcess
 				}
 				// Make grep take longer so that we don't require extremely large files for interesting results
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					// ignore it
 				}

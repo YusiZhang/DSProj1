@@ -20,7 +20,7 @@ public class Master {
 				server.listen();
 			}
 		};
-		
+
 		Thread t2 = new Thread() {
 			MigratableProcess process = null;
 			@Override
@@ -43,11 +43,11 @@ public class Master {
 				}
 			}
 		};
-		
+
 		t.start();
-		
+
 		t2.start();
-		
+
 
 	}
 }

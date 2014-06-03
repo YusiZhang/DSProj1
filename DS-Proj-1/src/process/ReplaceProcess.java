@@ -62,13 +62,13 @@ public class ReplaceProcess implements MigratableProcess
 				if (line == null) {
 					terminated = true;
 					break;
-
 				}
 				
 				if (line.contains(src)) {
 					System.out.println(line);
-					line.replace(src, des);
-					outFile.write(line.getBytes());
+					line = line.replace(src, des);
+					System.out.println(line);
+					outFile.write((line+"\n").getBytes());
 				}
 				try {
 					Thread.sleep(1000);
