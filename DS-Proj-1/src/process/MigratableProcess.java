@@ -18,6 +18,8 @@ public interface MigratableProcess extends Runnable,Serializable{
 	public void runProcess();
 	
 	public void resume();
+	//!!!!!!!!!!!!!!!!!to add !!!!!!!!!!
+	//public void terminate();
 	
 	public boolean isTerminated();
 	
