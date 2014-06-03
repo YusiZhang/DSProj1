@@ -1,26 +1,32 @@
 package process;
-
 import io.TransactionalFileInputStream;
 import io.TransactionalFileOutputStream;
 
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.IOException;
 import java.io.PrintStream;
+import java.io.EOFException;
+import java.io.DataInputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.lang.Thread;
+import java.lang.InterruptedException;
 
-public class WordCountProcess implements MigratableProcess{
+public class WordCountProcess implements MigratableProcess
+{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6690831713903505496L;
+	private static final long serialVersionUID = 6457065956449962288L;
 	private TransactionalFileInputStream  inFile;
 	private TransactionalFileOutputStream outFile;
 	private String query;
 	private long count;
-	private volatile boolean suspending;
-	private volatile boolean terminated;
 
-	public WordCountProcess(String[] args) throws Exception{
+	volatile boolean suspending;
+	volatile boolean terminated;
+
+	public WordCountProcess(String args[]) throws Exception
+	{
 		if (args.length != 3) {
 			System.out.println("usage: WordCountProcess <queryString> <inputFile> <outputFile>");
 			throw new Exception("Invalid Arguments");
@@ -29,81 +35,119 @@ public class WordCountProcess implements MigratableProcess{
 		query = args[0];
 		inFile = new TransactionalFileInputStream(args[1]);
 		outFile = new TransactionalFileOutputStream(args[2], false);
-		
-		
 	}
+
 	
-	public void run(){
+//	public void runProcess(){
+//		//if it has never been started 
+//		if (inFile.getFileIndex() == 0){
+//			Thread t = new Thread(this);
+//			t.start();
+//		}
+//		else {
+//			this.resume();
+//		}
+//	}
+	
+	public void run()
+	{
 		PrintStream out = new PrintStream(outFile);
 		DataInputStream in = new DataInputStream(inFile);
-		try{
+		
+		try {
 			while (!suspending) {
 				String line = in.readLine();
-				if (line == null) break;
-				if (line.contains(query)) {
-					count++;
+
+				if (line == null) {
+					System.out.println(count);
+					outFile.write((int)count);
+					terminated = true;
+					break;
+
 				}
 				
-				try{
-					Thread.sleep(10000);
-				}catch(InterruptedException e){
-					//do nothing
+				if (line.contains(query)) {
+					count++;
+
+				}
+				// Make grep take longer so that we don't require extremely large files for interesting results
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// ignore it
 				}
 			}
-			
-			out.println(count);
-		}catch (EOFException e) {
+		} catch (EOFException e) {
 			//End of File
 		} catch (IOException e) {
 			System.out.println ("WordCountProcess: Error: " + e);
 		}
-		
-		
+
+ 
 		suspending = false;
 	}
 
-	@Override
-	public void suspend() {
+	public void suspend()
+	{
+		System.out.println("executing suspending");
+
 		suspending = true;
-		while (suspending);		
+		while (suspending);
 	}
 
 	@Override
 	public TransactionalFileInputStream getInput() {
-		return this.inFile;
+		return inFile;
 	}
 
 	@Override
 	public TransactionalFileOutputStream getOutput() {
-		return this.outFile;
+		return outFile;
 	}
 
+	
 	@Override
-	public synchronized void resume() {
+	public synchronized void resume()
+	{
 		suspending = false;
-		this.notify();
+		this.run();
 	}
 
 //	@Override
 //	public void terminate() {
-//		terminated  = true;
+//		terminated  = true;		
 //	}
+	
+	@Override
+    public String toString() {
+//        StringBuilder showstring = new StringBuilder("GrepProcess ");
+//        showstring.append(this.query);
+//        showstring.append(" ");
+//        showstring.append(this.inFile.getFileName());
+//        showstring.append(" ");
+//        showstring.append(this.outFile.getFileName());
+//        return showstring.toString();
+		return "Word Count Process";
+    }
+
 
 	@Override
 	public void runProcess() {
-		// TODO Auto-generated method stub
-		
+		//if it has never been started 
+		if (inFile.getFileIndex() == 0){
+			Thread t = new Thread(this);
+			t.start();
+		}
+		else {
+			this.resume();
+		}
 	}
+
 
 	@Override
 	public boolean isTerminated() {
-		// TODO Auto-generated method stub
 		return terminated;
 	}
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return "grep";
-	}
-	
+
+
 }

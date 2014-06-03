@@ -1,5 +1,4 @@
 package process;
-
 import io.TransactionalFileInputStream;
 import io.TransactionalFileOutputStream;
 
@@ -12,49 +11,65 @@ import java.io.IOException;
 import java.lang.Thread;
 import java.lang.InterruptedException;
 
-public class ReplaceProcess implements MigratableProcess {
+public class ReplaceProcess implements MigratableProcess
+{
 	/**
 	 * 
 	 */
-	private TransactionalFileInputStream inFile;
+	private static final long serialVersionUID = 6457065956449962288L;
+	private TransactionalFileInputStream  inFile;
 	private TransactionalFileOutputStream outFile;
-	private String query;
-	private String replaceStr;
-
+	private String src;
+	private String des;
 	volatile boolean suspending;
 	volatile boolean terminated;
 
-	public ReplaceProcess(String args[]) throws Exception {
+	public ReplaceProcess(String args[]) throws Exception
+	{
 		if (args.length != 4) {
-			System.out
-					.println("usage: ReplaceProcess <queryString> <replaceString> <inputFile> <outputFile>");
+			System.out.println("usage: GrepProcess <sourceString> <destinationString> <inputFile> <outputFile>");
 			throw new Exception("Invalid Arguments");
 		}
-
-		query = args[0];
-		replaceStr = args[1];
+		
+		//replace the source word with the destination word
+		src = args[0]; 
+		des = args[1];
 		inFile = new TransactionalFileInputStream(args[2]);
 		outFile = new TransactionalFileOutputStream(args[3], false);
 	}
 
-	public void run() {
+	
+//	public void runProcess(){
+//		//if it has never been started 
+//		if (inFile.getFileIndex() == 0){
+//			Thread t = new Thread(this);
+//			t.start();
+//		}
+//		else {
+//			this.resume();
+//		}
+//	}
+	
+	public void run()
+	{
 		PrintStream out = new PrintStream(outFile);
 		DataInputStream in = new DataInputStream(inFile);
-
+		
 		try {
 			while (!suspending) {
 				String line = in.readLine();
 
-				if (line == null)
+				if (line == null) {
+					terminated = true;
 					break;
 
-				if (line.contains(query)) {
-					line.replace(query, replaceStr);
-					out.println(line);
-					System.out.println(line);
 				}
-				// Make grep take longer so that we don't require extremely
-				// large files for interesting results
+				
+				if (line.contains(src)) {
+					System.out.println(line);
+					line.replace(src, des);
+					outFile.write(line.getBytes());
+				}
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -62,20 +77,21 @@ public class ReplaceProcess implements MigratableProcess {
 				}
 			}
 		} catch (EOFException e) {
-			// End of File
+			//End of File
 		} catch (IOException e) {
-			System.out.println("GrepProcess: Error: " + e);
+			System.out.println ("Replace Process: Error: " + e);
 		}
 
+ 
 		suspending = false;
 	}
 
-	public void suspend() {
+	public void suspend()
+	{
 		System.out.println("executing suspending");
 
 		suspending = true;
-		while (suspending)
-			;
+		while (suspending);
 	}
 
 	@Override
@@ -96,39 +112,41 @@ public class ReplaceProcess implements MigratableProcess {
 		this.run();
 	}
 
-	// @Override
-	// public void terminate() {
-	// terminated = true;
-	// }
-
+//	@Override
+//	public void terminate() {
+//		terminated  = true;		
+//	}
+	
 	@Override
-	public String toString() {
-		// StringBuilder showstring = new StringBuilder("GrepProcess ");
-		// showstring.append(this.query);
-		// showstring.append(" ");
-		// showstring.append(this.inFile.getFileName());
-		// showstring.append(" ");
-		// showstring.append(this.outFile.getFileName());
-		// return showstring.toString();
-		return "replace";
-	}
+    public String toString() {
+//        StringBuilder showstring = new StringBuilder("GrepProcess ");
+//        showstring.append(this.query);
+//        showstring.append(" ");
+//        showstring.append(this.inFile.getFileName());
+//        showstring.append(" ");
+//        showstring.append(this.outFile.getFileName());
+//        return showstring.toString();
+		return "Replace Process";
+    }
+
 
 	@Override
 	public void runProcess() {
-		// if it has never been started
-		if (inFile.getFileIndex() == 0) {
+		//if it has never been started 
+		if (inFile.getFileIndex() == 0){
 			Thread t = new Thread(this);
 			t.start();
-		} else {
+		}
+		else {
 			this.resume();
 		}
-
 	}
+
 
 	@Override
 	public boolean isTerminated() {
-		// TODO Auto-generated method stub
 		return terminated;
 	}
+
 
 }

@@ -65,6 +65,8 @@ public class GrepProcess implements MigratableProcess
 				
 				if (line.contains(query)) {
 					System.out.println(line);
+					outFile.write(line.getBytes());
+
 				}
 				// Make grep take longer so that we don't require extremely large files for interesting results
 				try {
