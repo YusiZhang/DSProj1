@@ -35,22 +35,26 @@ public class MainMaster {
 			masterManager.launchProcessConfig("process.GrepProcess", para1);
 			masterManager.launchProcessConfig("process.ReplaceProcess", para2);
 			
+			
 			masterManager.addSlave("127.0.0.1", 15641);
 			masterManager.addSlave("127.0.0.1", 15642);
 			masterManager.addSlave("127.0.0.1", 15643);
 			
 			Thread.sleep(4000);
 			
-			masterManager.initMigrate();
-			masterManager.run();
-			Thread.sleep(2000);
-			masterManager.requestMig("127.0.0.1", 15641, 0);
-			Thread.sleep(4000);
-			masterManager.requestMig("127.0.0.1", 15641, 1);
+			masterManager.initMigrate();//send process to slave 1 (15641)
+			masterManager.run();//run listen 
+			
+			
 			Thread.sleep(3000);
-			masterManager.requestProessInfo("127.0.0.1", 15641);
-			masterManager.getSlaveProcessInfo();
+			masterManager.requestProessInfo("127.0.0.1", 15641);//request process info from slave1
+			masterManager.getSlaveProcessInfo(); //console output info of slave 
 
+			Thread.sleep(2000);
+			masterManager.requestMig("127.0.0.1", 15641, 0); //request process 0 on slave1 back to master, and send it to slave2
+			Thread.sleep(4000);
+			masterManager.requestMig("127.0.0.1", 15641, 1);//request process 1 on slave1 back to master, and send it to slave3
+			
 
 			
 		} catch (SecurityException e) {

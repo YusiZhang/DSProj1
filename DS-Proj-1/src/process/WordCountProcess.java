@@ -103,7 +103,7 @@ public class WordCountProcess implements MigratableProcess{
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "grep";
+		return "count";
 	}
 	
 }
