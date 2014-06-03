@@ -57,6 +57,7 @@ public class WordCountProcess implements MigratableProcess
 				
 				if (line.contains(query)) {
 					count++;
+					System.out.println("count " + " line");
 
 				}
 				// Make grep take longer so that we don't require extremely large files for interesting results

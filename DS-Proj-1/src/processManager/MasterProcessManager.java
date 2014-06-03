@@ -105,7 +105,7 @@ public class MasterProcessManager implements Runnable {
 			public void run() {
 				super.run();
 				while(true) {
-					if(server.getObject()!=null && (server.getObject().toString().equals("grep") || server.getObject().toString().equals("replace"))){
+					if(server.getObject()!=null && (server.getObject().toString().equals("grep") || server.getObject().toString().equals("replace") || server.getObject().toString().equals("count"))){
 						//get process
 						//check best slave and migrate process to it.
 						MigratableProcess process = (MigratableProcess)server.getObject();

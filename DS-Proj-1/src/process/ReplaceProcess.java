@@ -65,7 +65,7 @@ public class ReplaceProcess implements MigratableProcess
 				}
 				
 				if (line.contains(src)) {
-					System.out.println(line);
+//					System.out.println(line);
 					line = line.replace(src, des);
 					System.out.println(line);
 					outFile.write((line+"\n").getBytes());
@@ -126,7 +126,7 @@ public class ReplaceProcess implements MigratableProcess
 //        showstring.append(" ");
 //        showstring.append(this.outFile.getFileName());
 //        return showstring.toString();
-		return "Replace Process";
+		return "replace";
     }
 
 

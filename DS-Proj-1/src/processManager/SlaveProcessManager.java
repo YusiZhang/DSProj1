@@ -56,7 +56,7 @@ public class SlaveProcessManager implements Runnable {
 			public void run() {
 				super.run();
 				while(true) {
-					if(server.getObject()!=null && (server.getObject().toString().equals("grep")  || server.getObject().toString().equals("replace") )){
+					if(server.getObject()!=null && (server.getObject().toString().equals("grep")  || server.getObject().toString().equals("replace")|| server.getObject().toString().equals("count") )){
 						//get process
 						//add it to hashmap and run it
 						System.out.println(server.getObject().toString() + " running process");

@@ -31,9 +31,12 @@ public class MainMaster {
 		para2[2] = "testInput2.txt";
 		para2[3] = "testOutput2.txt";
 		
+		String[] para3 = {"line", "testInput3.txt", "testOutput3.txt"};
+		
 		try {
 			masterManager.launchProcessConfig("process.GrepProcess", para1);
 			masterManager.launchProcessConfig("process.ReplaceProcess", para2);
+			masterManager.launchProcessConfig("process.WordCountProcess", para3);
 			
 			
 			masterManager.addSlave("127.0.0.1", 15641);
@@ -52,8 +55,10 @@ public class MainMaster {
 
 			Thread.sleep(2000);
 			masterManager.requestMig("127.0.0.1", 15641, 0); //request process 0 on slave1 back to master, and send it to slave2
-			Thread.sleep(4000);
+			Thread.sleep(2000);
 			masterManager.requestMig("127.0.0.1", 15641, 1);//request process 1 on slave1 back to master, and send it to slave3
+			Thread.sleep(2000);
+			masterManager.requestMig("127.0.0.1", 15641, 2);//request process 2 on slave1 back to master, and send it to slave3
 			
 
 			
