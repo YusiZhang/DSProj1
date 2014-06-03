@@ -100,17 +100,22 @@ public class MasterProcessManager implements Runnable {
 		Thread t = new Thread (){
 			MigratableProcess process;
 			SlaveBean slave;
-			HashMap<Integer,MigratableProcess>processList;
+			HashMap<Integer,MigratableProcess>processList = new HashMap<Integer, MigratableProcess>();
 			@Override
 			public void run() {
 				super.run();
 				while(true) {
-					if(server.getObject()!=null && server.getObject().toString().equals("grep")){
+					if(server.getObject()!=null && (server.getObject().toString().equals("grep") || server.getObject().toString().equals("replace"))){
 						//get process
 						//check best slave and migrate process to it.
 						MigratableProcess process = (MigratableProcess)server.getObject();
 //						migrateProcessBest(process);
-						migrateToSlave("127.0.0.1", 15642, process);
+						if(server.getObject().toString().equals("grep") ){
+							migrateToSlave("127.0.0.1", 15642, process);
+						}else {
+							migrateToSlave("127.0.0.1", 15643, process);
+						}
+						
 						server.setObject(null);
 					}
 					if (server.getObject()!=null && server.getObject().toString().equals("bean")){
@@ -122,8 +127,10 @@ public class MasterProcessManager implements Runnable {
 						System.out.println("get count" + slave.getPort() + " count " + slave.getCurCount());
 						server.setObject(null);
 					} else if(server.getObject()!=null && server.getObject().getClass().isInstance(processList)){
+						System.out.println("ProcessList is Get!!");
 						HashMap<Integer,MigratableProcess> processList = (HashMap<Integer, MigratableProcess>) server.getObject();
-						
+						System.out.println("processList received is " + server.getObject().toString());
+						System.out.println("processList received is " + processList.toString());
 						slaveProcessList.put(server.getSocket().getPort(), processList);
 						server.setObject(null);
 					}
@@ -237,7 +244,6 @@ public class MasterProcessManager implements Runnable {
 		for (Integer port : slaveProcessList.keySet()) {
 			System.out.print(port + " ");
 			for(Integer processId : slaveProcessList.get(port).keySet()) {
-				System.out.print(processId + " ");
 				System.out.print(slaveProcessList.get(port).get(processId).toString());
 			}
 		}

@@ -25,11 +25,16 @@ public class MainMaster {
 		para1[1] = "testInput1.txt";
 		para1[2] = "testOutput1.txt";
 		
+		String[] para2 = new String[4];
+		para2[0] = "line";
+		para2[1] = "newline";
+		para2[2] = "testInput2.txt";
+		para2[3] = "testOutput2.txt";
+		
 		try {
 			masterManager.launchProcessConfig("process.GrepProcess", para1);
-			masterManager.launchProcessConfig("process.GrepProcess", para1);
-			masterManager.launchProcessConfig("process.GrepProcess", para1);
-			masterManager.launchProcessConfig("process.GrepProcess", para1);
+			masterManager.launchProcessConfig("process.ReplaceProcess", para2);
+			
 			masterManager.addSlave("127.0.0.1", 15641);
 			masterManager.addSlave("127.0.0.1", 15642);
 			masterManager.addSlave("127.0.0.1", 15643);
@@ -38,11 +43,14 @@ public class MainMaster {
 			
 			masterManager.initMigrate();
 			masterManager.run();
+			Thread.sleep(2000);
+			masterManager.requestMig("127.0.0.1", 15641, 0);
+			Thread.sleep(4000);
 			masterManager.requestMig("127.0.0.1", 15641, 1);
-//			System.out.println("Mig start!!!!!!!");
-//			masterManager.requestMig("127.0.0.1", 15641, 1);
-//			masterManager.requestMig("127.0.0.1", 15642, 1);
-//			masterManager.requestMig("127.0.0.1", 15643, 1);
+			Thread.sleep(3000);
+			masterManager.requestProessInfo("127.0.0.1", 15641);
+			masterManager.getSlaveProcessInfo();
+
 
 			
 		} catch (SecurityException e) {

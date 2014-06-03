@@ -100,4 +100,10 @@ public class WordCountProcess implements MigratableProcess{
 		// TODO Auto-generated method stub
 		return terminated;
 	}
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "grep";
+	}
+	
 }

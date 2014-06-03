@@ -18,7 +18,7 @@ public class MainSlave2 {
 	
 	
 	public static void main(String[] args) {
-		SlaveProcessManager slaveManager2 = new SlaveProcessManager("127.0.0.1", 15642);
+		SlaveProcessManager slaveManager2 = new SlaveProcessManager("127.0.0.1", 15642,15442);
 		
 		slaveManager2.run();
 			

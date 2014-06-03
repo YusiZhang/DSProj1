@@ -21,7 +21,7 @@ public interface MigratableProcess extends Runnable,Serializable{
 	
 	public boolean isTerminated();
 	
-	public String toString();
+	public String toString();//required implementation to return string .
 
 	TransactionalFileInputStream getInput();
 

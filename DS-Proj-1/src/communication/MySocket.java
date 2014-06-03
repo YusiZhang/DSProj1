@@ -17,14 +17,15 @@ public class MySocket{
 	private int dest_Port;
 	private ObjectOutputStream os;
 	private Socket socket;
+	private int curPort;
 
 	public MySocket(String host, int port) {
 		this.dest_Host = host;
 		this.dest_Port = port;
+		this.curPort = curPort;
 		try {
-			
-			
-//			socket = new Socket(this.dest_Host, this.dest_Port, InetAddress.getLocalHost(),this.dest_Port-200);
+//			System.out.println(InetAddress.getLocalHost());
+//			socket = new Socket(this.dest_Host, this.dest_Port, InetAddress.getLocalHost(),this.curPort);
 			socket = new Socket(this.dest_Host, this.dest_Port);
 			os = new ObjectOutputStream(socket.getOutputStream());
 		} catch (UnknownHostException e) {

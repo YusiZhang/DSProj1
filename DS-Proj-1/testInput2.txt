@@ -8,3 +8,7 @@ line 7 in file2
 line 8 in file2
 line 9 in file2
 line 10 in file2
+line 11 in file2
+line 12 in file2
+line 13 in file2
+line 14 in file2

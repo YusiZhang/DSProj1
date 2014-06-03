@@ -29,10 +29,12 @@ public class SlaveProcessManager implements Runnable {
 	public MySocketServer server;
 	public MySocket socekt;
 	public int processId;
+	public int sendPort;
 
-	public SlaveProcessManager(String host, int port) {
+	public SlaveProcessManager(String host, int port , int sendPort) {
 		this.host = host;
 		this.port = port;
+		this.sendPort = sendPort;
 		slaveBean = new SlaveBean(host, port);
 		processList = new HashMap<Integer,MigratableProcess>();
 		server = new MySocketServer(this.port);
@@ -54,10 +56,10 @@ public class SlaveProcessManager implements Runnable {
 			public void run() {
 				super.run();
 				while(true) {
-					if(server.getObject()!=null && server.getObject().toString().equals("grep")){
+					if(server.getObject()!=null && (server.getObject().toString().equals("grep")  || server.getObject().toString().equals("replace") )){
 						//get process
 						//add it to hashmap and run it
-						System.out.println("running process");
+						System.out.println(server.getObject().toString() + " running process");
 						MigratableProcess process = (MigratableProcess)server.getObject();
 						processList.put(processId, process);
 						processId++;
